@@ -29,8 +29,10 @@ export interface SimulationStore {
   activeDecisionWindow: DecisionWindow | null;
   historicalSnapshots: StateSnapshot[];
   processedEventIds: Set<string>;
+  isAutoDemoRunning: boolean;
 
   // Actions
+  setIsAutoDemoRunning: (running: boolean) => void;
   loadScenario: (scenario: Scenario) => void;
   startSimulation: () => void;
   pauseSimulation: () => void;
@@ -117,6 +119,9 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
   activeDecisionWindow: null,
   historicalSnapshots: [],
   processedEventIds: new Set<string>(),
+  isAutoDemoRunning: false,
+
+  setIsAutoDemoRunning: (running: boolean) => set({ isAutoDemoRunning: running }),
 
   loadScenario: (scenario: Scenario) => {
     const channelsMap: Record<string, CommunicationChannel> = {};

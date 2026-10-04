@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSimulationStore } from '@/stores/simulationStore';
 import { useSessionStore } from '@/stores/sessionStore';
 import { DecisionAction } from '@/types/decision';
@@ -28,6 +28,7 @@ export const DecisionPanel: React.FC = () => {
   const [rationale, setRationale] = useState('');
   const [filterCategory, setFilterCategory] = useState<'ALL' | 'EVALUATE' | 'COMM' | 'TACTICAL'>('ALL');
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   // Synchronize live typing and action selection during 3-min judge auto-demo
   useEffect(() => {
@@ -45,6 +46,11 @@ export const DecisionPanel: React.FC = () => {
         Math.floor(((tick - 72000) / 7500) * fullText.length)
       );
       setRationale(fullText.substring(0, progress));
+      if (textareaRef.current) {
+        try {
+          textareaRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        } catch {}
+      }
     }
   }, [isAutoDemoRunning, activeDecisionWindow, tick, selectedAction]);
 
@@ -177,6 +183,7 @@ export const DecisionPanel: React.FC = () => {
           </div>
 
           <textarea
+            ref={textareaRef}
             value={rationale}
             data-tour="rationale-input"
             disabled={!isWindowActive}
