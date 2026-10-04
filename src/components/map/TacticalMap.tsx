@@ -782,17 +782,39 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
     scenario,
   ]);
 
-  // Handle Canvas Resize
+  // Handle Canvas Resize with ResizeObserver for robust layout tracking across reloads
   useEffect(() => {
-    const handleResize = () => {
-      if (canvasRef.current) {
-        canvasRef.current.width = canvasRef.current.parentElement?.clientWidth || 600;
-        canvasRef.current.height = canvasRef.current.parentElement?.clientHeight || 400;
+    const updateSize = () => {
+      if (canvasRef.current && canvasRef.current.parentElement) {
+        const p = canvasRef.current.parentElement;
+        const w = p.clientWidth || 600;
+        const h = p.clientHeight || 400;
+        if (canvasRef.current.width !== w || canvasRef.current.height !== h) {
+          canvasRef.current.width = w;
+          canvasRef.current.height = h;
+        }
       }
     };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+
+    updateSize();
+    // Extra timeout ensures size updates after CSS flex/grid layout settles
+    const timer = setTimeout(updateSize, 50);
+
+    window.addEventListener('resize', updateSize);
+
+    let observer: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined' && canvasRef.current?.parentElement) {
+      observer = new ResizeObserver(() => {
+        updateSize();
+      });
+      observer.observe(canvasRef.current.parentElement);
+    }
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('resize', updateSize);
+      if (observer) observer.disconnect();
+    };
   }, []);
 
   // Mouse Drag / Pan handlers

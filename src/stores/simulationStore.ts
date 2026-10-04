@@ -10,6 +10,9 @@ import { evaluateDecision } from '@/lib/simulation/scoring';
 import { createDecisionSnapshot } from '@/lib/simulation/replay';
 import { useSessionStore } from './sessionStore';
 
+import scn06 from '@/../data/scenarios/scn-06-blackout.json';
+import { validateScenario } from '@/lib/simulation/scenario';
+
 export interface SimulationStore {
   scenario: Scenario | null;
   tick: number; // millisecond simulation clock
@@ -39,19 +42,78 @@ export interface SimulationStore {
   submitDecision: (action: DecisionAction, rationale: string) => void;
 }
 
+const buildInitialScenarioData = (rawScenario: any) => {
+  const validated = validateScenario(rawScenario);
+  const channelsMap: Record<string, CommunicationChannel> = {};
+  validated.communicationChannels.forEach((ch) => {
+    channelsMap[ch.id] = { ...ch, channelQuality: calculateChannelQuality(ch) };
+  });
+
+  const entitiesMap: Record<string, TacticalEntity> = {};
+  validated.entities.forEach((ent) => {
+    entitiesMap[ent.id] = { ...ent };
+  });
+
+  const initialCommHealth = calculateAggregateCommHealth(channelsMap);
+  const initialChannelId = Object.keys(channelsMap)[0] || 'ch-primary';
+
+  const baselineItem: InformationItem = {
+    id: `base-${validated.id}-0`,
+    sourceName: 'COMMAND OPERATIONS DESK',
+    sourceType: 'COMMAND',
+    channelId: initialChannelId,
+    timestamp: 0,
+    receivedAt: 0,
+    content: `OPERATIONAL COMMENCEMENT: ${validated.title}. Environment: ${validated.environment.type} (${validated.environment.weatherDescription}). All forward assets reporting baseline telemetry.`,
+    sourceReliability: 0.95,
+    freshness: 1.0,
+    consistency: 1.0,
+    channelQuality: initialCommHealth,
+    confidence: initialCommHealth * 0.95,
+    verification: 'CONFIRMED',
+    ageSeconds: 0,
+    explanation: {
+      sourceReliability: 0.95,
+      channelQuality: initialCommHealth,
+      freshness: 1.0,
+      consistency: 1.0,
+      compositeConfidence: initialCommHealth * 0.95,
+      reasons: ['Baseline initial operational dispatch under nominal telemetry status.'],
+    },
+  };
+
+  return {
+    scenario: validated,
+    channels: channelsMap,
+    entities: entitiesMap,
+    commHealth: initialCommHealth,
+    informationItems: [baselineItem],
+    eventLog: [
+      {
+        id: `init-log-${validated.id}`,
+        tick: 0,
+        category: 'SYSTEM',
+        message: `Simulation initialized with scenario: ${validated.title}.`,
+      },
+    ],
+  };
+};
+
+const defaultInit = buildInitialScenarioData(scn06);
+
 export const useSimulationStore = create<SimulationStore>((set, get) => ({
-  scenario: null,
+  scenario: defaultInit.scenario,
   tick: 0,
   isRunning: false,
   speedMultiplier: 1,
   missionPhase: 'PHASE 01 / NOMINAL OBSERVATION',
-  commHealth: 0.96,
+  commHealth: defaultInit.commHealth,
   infoIntegrity: 0.94,
   overallDegradationState: 'NORMAL',
-  channels: {},
-  entities: {},
-  informationItems: [],
-  eventLog: [],
+  channels: defaultInit.channels,
+  entities: defaultInit.entities,
+  informationItems: defaultInit.informationItems,
+  eventLog: defaultInit.eventLog,
   activeDecisionWindow: null,
   historicalSnapshots: [],
   processedEventIds: new Set<string>(),

@@ -126,6 +126,10 @@ export class TacticalAudioEngine {
     this.playCommitChime();
   }
 
+  public playAlertChime() {
+    this.playWarningTone();
+  }
+
   // Tactile button click
   public playClick() {
     if (!this.enabled) return;
