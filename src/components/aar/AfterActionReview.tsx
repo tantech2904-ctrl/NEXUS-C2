@@ -3,10 +3,11 @@
 import React, { useState } from 'react';
 import { useSessionStore } from '@/stores/sessionStore';
 import { useSimulationStore } from '@/stores/simulationStore';
+import { useMultiplayerStore } from '@/stores/multiplayerStore';
 import { ReplayModal } from '@/components/replay/ReplayModal';
 import { formatTime } from '@/lib/utils';
 import { tacticalAudio } from '@/lib/audio';
-import { Shield, Award, RotateCcw, Printer } from 'lucide-react';
+import { Shield, Award, RotateCcw, Printer, Users, CheckCircle2, Vote, Zap } from 'lucide-react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, Radar } from 'recharts';
 
 interface AfterActionReviewProps {
@@ -20,6 +21,7 @@ export const AfterActionReview: React.FC<AfterActionReviewProps> = ({
 }) => {
   const { decisions, latestScore, sessionId } = useSessionStore();
   const { scenario } = useSimulationStore();
+  const { members, activeProposal, messages } = useMultiplayerStore();
   const [isReplayOpen, setIsReplayOpen] = useState(false);
 
   if (decisions.length === 0) {
@@ -276,6 +278,64 @@ export const AfterActionReview: React.FC<AfterActionReviewProps> = ({
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* Multi-Domain Team Coordination & Consensus Debrief (SIH26248) */}
+      <div className="border border-[#2a2d30] rounded overflow-hidden print:border-gray-300 print:bg-white break-inside-avoid">
+        <div className="bg-[#1c1f21] px-4 py-2 border-b border-[#2a2d30] font-bold text-xs text-[#e8eaec] flex items-center justify-between print:bg-gray-100 print:text-black print:border-gray-300">
+          <div className="flex items-center gap-2">
+            <Users className="w-4 h-4 text-[#4fc3d0] print:text-black" />
+            <span>MULTI-DOMAIN SMALL-TEAM COORDINATION & CONSENSUS DEBRIEF</span>
+          </div>
+          <span className="text-[10px] text-[#4fc3d0] print:text-gray-800 font-normal">
+            SIH26248: LAND &bull; AIR/UAS &bull; CYBER &bull; EW
+          </span>
+        </div>
+
+        <div className="p-4 bg-[#141618] print:bg-white space-y-3">
+          {/* Sub-Unit Net Roster */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-xs">
+            {(Object.keys(members) as (keyof typeof members)[]).map((role) => {
+              const m = members[role];
+              return (
+                <div key={role} className="bg-[#1c1f21] border border-[#2a2d30] p-2.5 rounded print:bg-gray-50 print:border-gray-300">
+                  <div className="text-[10px] text-[#8a9099] print:text-gray-600 font-bold">{m.domain}</div>
+                  <div className="font-bold text-[#e8eaec] print:text-black text-[11px] truncate">{m.callsign}</div>
+                  <div className="flex items-center justify-between mt-1 text-[10px]">
+                    <span className="text-[#8a9099] print:text-gray-500">{m.assignedNet}</span>
+                    <span className={`font-bold ${
+                      m.status === 'NOMINAL' ? 'text-[#2ecc71] print:text-green-800' : 'text-[#d4860a] print:text-amber-800'
+                    }`}>
+                      {m.status}
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Team Consensus & Coordination Outcomes */}
+          <div className="bg-[#1c1f21] border border-[#2a2d30] p-3 rounded flex flex-col md:flex-row md:items-center justify-between gap-3 print:bg-gray-50 print:border-gray-300">
+            <div>
+              <div className="font-bold text-xs text-[#e8eaec] print:text-black">
+                COORDINATION INTEGRITY: <span className="text-[#2ecc71] print:text-green-800 font-bold">{dimensions.coordination}%</span>
+              </div>
+              <div className="text-[11px] text-[#8a9099] print:text-gray-600 font-sans mt-0.5">
+                {activeProposal ? (
+                  <>Joint team reached {activeProposal.consensusPercentage}% consensus on action &ldquo;{activeProposal.action}&rdquo; under degraded radio nets.</>
+                ) : (
+                  <>Sub-units maintained tactical communication across partitioned nets with {messages.length} tactical flash transmissions logged.</>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] text-[#8a9099] print:text-gray-600">DEGRADED FLASH TRAFFIC:</span>
+              <span className="font-bold text-xs text-[#4fc3d0] print:text-black bg-[#0d0f10] print:bg-white px-2 py-0.5 rounded border border-[#2a2d30] print:border-gray-300">
+                {messages.length} MSGS
+              </span>
+            </div>
+          </div>
         </div>
       </div>
 

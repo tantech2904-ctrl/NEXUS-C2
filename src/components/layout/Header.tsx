@@ -21,6 +21,7 @@ import {
   VolumeX,
   Sliders,
   Zap,
+  Users,
 } from 'lucide-react';
 
 export const Header: React.FC = () => {
@@ -93,6 +94,7 @@ export const Header: React.FC = () => {
 
   const navLinks = [
     { href: '/console', label: 'CONSOLE', icon: Terminal },
+    { href: '/team', label: 'TEAM NET', icon: Users },
     { href: '/instructor', label: 'INSTRUCTOR', icon: Layers },
     { href: '/scenarios', label: 'SCENARIOS', icon: BookOpen },
     { href: '/builder', label: 'BUILDER', icon: Sliders },
@@ -136,7 +138,7 @@ export const Header: React.FC = () => {
         </div>
 
         {/* Comms Quality */}
-        <div className="flex items-center gap-1.5 bg-[#1c1f21] border border-[#2a2d30] px-2 py-1 rounded">
+        <div id="header-comms-status" className="flex items-center gap-1.5 bg-[#1c1f21] border border-[#2a2d30] px-2 py-1 rounded">
           <Radio className="w-3 h-3 text-[#4fc3d0]" />
           <span className="text-[#8a9099] text-[10px]">COMMS</span>
           <span className={`text-[11px] font-bold ${commHealth > 0.7 ? 'text-[#2ecc71]' : commHealth > 0.4 ? 'text-[#d4860a]' : 'text-[#c0392b]'}`}>

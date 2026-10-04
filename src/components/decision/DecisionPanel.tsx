@@ -117,6 +117,7 @@ export const DecisionPanel: React.FC = () => {
                 <button
                   key={action}
                   type="button"
+                  data-tour={action === 'SWITCH_INFORMATION_CHANNEL' ? 'decision-action-SWITCH_INFORMATION_CHANNEL' : undefined}
                   disabled={!isWindowActive}
                   onClick={() => {
                     tacticalAudio.playClick();
@@ -158,6 +159,7 @@ export const DecisionPanel: React.FC = () => {
 
           <textarea
             value={rationale}
+            data-tour="rationale-input"
             disabled={!isWindowActive}
             onChange={(e) => setRationale(e.target.value)}
             placeholder={
@@ -180,6 +182,7 @@ export const DecisionPanel: React.FC = () => {
 
             <button
               type="submit"
+              data-tour="commit-button"
               disabled={!isWindowActive || !selectedAction || rationale.trim().length < 15}
               className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded font-bold text-xs transition-all ${
                 !isWindowActive || !selectedAction || rationale.trim().length < 15

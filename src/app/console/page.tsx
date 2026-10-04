@@ -14,6 +14,7 @@ import { useSimulationStore } from '@/stores/simulationStore';
 import { useSessionStore } from '@/stores/sessionStore';
 import { validateScenario } from '@/lib/simulation/scenario';
 import { tacticalAudio } from '@/lib/audio';
+import { VirtualCommanderCursor } from '@/components/guide/VirtualCommanderCursor';
 
 import scn01 from '@/../data/scenarios/scn-01-maria.json';
 import scn02 from '@/../data/scenarios/scn-02-anatolia.json';
@@ -740,6 +741,15 @@ export default function ConsolePage() {
         onClose={() => setIsTourModalOpen(false)}
         onLaunchAutoDemo={handleStartAutoDemo}
       />
+
+      {/* Animated Virtual Commander Cursor (Shows who is doing what during Auto-Demo) */}
+      {isAutoDemoRunning && (
+        <VirtualCommanderCursor
+          tick={tick}
+          isRunning={isAutoDemoRunning}
+          onNavigateAar={handleJumpToAar}
+        />
+      )}
     </div>
   );
 }

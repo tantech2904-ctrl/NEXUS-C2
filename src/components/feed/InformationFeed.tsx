@@ -53,7 +53,7 @@ export const InformationFeed: React.FC = () => {
       </div>
 
       {/* Feed Stream */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2.5">
+      <div data-tour="feed-stream" className="flex-1 overflow-y-auto p-2 space-y-2.5">
         {informationItems.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center p-6 text-[#8a9099]">
             <Radio className="w-8 h-8 text-[#2a2d30] mb-2 animate-pulse" />
@@ -72,6 +72,7 @@ export const InformationFeed: React.FC = () => {
             return (
               <div
                 key={item.id}
+                data-tour={isContradicted ? 'feed-item-CONTRADICTED' : undefined}
                 onClick={() => toggleExpand(item.id)}
                 className={`border rounded p-2.5 cursor-pointer transition-all ${
                   isContradicted

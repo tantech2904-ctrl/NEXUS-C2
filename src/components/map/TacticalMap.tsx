@@ -902,7 +902,7 @@ export const TacticalMap: React.FC<TacticalMapProps> = ({
   const activeDisplayEntity = selectedEntity || hoveredEntity;
 
   return (
-    <div className="relative w-full h-full bg-[#0d0f10] border border-[#2a2d30] rounded-sm overflow-hidden flex flex-col select-none group">
+    <div className="relative w-full h-full bg-[#0d0f10] border border-[#2a2d30] rounded-sm overflow-hidden flex flex-col select-none group tactical-map-container">
       {/* CLEAN NON-OVERLAPPING TOP TOOLBAR */}
       <div className="bg-[#141618] border-b border-[#2a2d30] px-3 py-1.5 flex items-center justify-between gap-2 z-10 text-[11px] font-mono">
         {/* Left: Location Name & Elevation (Always fully visible, never covered!) */}
