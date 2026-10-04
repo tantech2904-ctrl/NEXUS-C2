@@ -1,0 +1,261 @@
+{
+  "id": "SCN-06",
+  "version": "1.0.0",
+  "title": "BLACKOUT // INFORMATION FOG",
+  "historicalBasis": null,
+  "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
+  "difficulty": "EXPERT",
+  "seed": 42,
+  "durationMs": 180000,
+  "stalenessThresholdSeconds": 35,
+  "environment": {
+    "type": "INFRASTRUCTURE_BLACKOUT",
+    "severity": 0.85,
+    "weatherDescription": "Atmospheric interference with optical and microwave backhaul links across Sector Bravo.",
+    "visibilityKm": 4.5
+  },
+  "entities": [
+    {
+      "id": "node-cmd",
+      "name": "COMMAND NODE (NEXUS MAIN)",
+      "type": "COMMAND_NODE",
+      "coordinates": [77.2167, 28.6139],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 1.0,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-relay-1",
+      "name": "TACTICAL RELAY 01 (HIGH RIDGE)",
+      "type": "RELAY_NODE",
+      "coordinates": [77.2450, 28.6420],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.95,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-relay-2",
+      "name": "TACTICAL RELAY 02 (VALLEY CORRIDOR)",
+      "type": "RELAY_NODE",
+      "coordinates": [77.1850, 28.5850],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-secondary",
+      "health": 0.92,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-alpha",
+      "name": "FIELD TEAM ALPHA",
+      "type": "FIELD_TEAM",
+      "coordinates": [77.2720, 28.6650],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.98,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-bravo",
+      "name": "FIELD TEAM BRAVO",
+      "type": "FIELD_TEAM",
+      "coordinates": [77.1620, 28.5620],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-secondary",
+      "health": 0.90,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-obs-1",
+      "name": "OBSERVATION CELL (EAGLE-EYE)",
+      "type": "OBSERVATION_NODE",
+      "coordinates": [77.2950, 28.6250],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.88,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-sup-1",
+      "name": "LOGISTICS SUPPORT NODE (OMEGA)",
+      "type": "SUPPORT_NODE",
+      "coordinates": [77.1900, 28.6300],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-fallback",
+      "health": 1.0,
+      "lastContactTick": 0
+    }
+  ],
+  "communicationChannels": [
+    {
+      "id": "ch-primary",
+      "name": "PRIMARY BROADBAND DATA LINK",
+      "type": "PRIMARY",
+      "availability": 0.98,
+      "packetLoss": 0.01,
+      "latencyMs": 65,
+      "bandwidthFactor": 0.98,
+      "channelQuality": 0.96,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-secondary",
+      "name": "SECONDARY TACTICAL VHF RADIO",
+      "type": "RADIO",
+      "availability": 0.95,
+      "packetLoss": 0.04,
+      "latencyMs": 140,
+      "bandwidthFactor": 0.90,
+      "channelQuality": 0.82,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-fallback",
+      "name": "EMERGENCY SATCOM FALLBACK",
+      "type": "FALLBACK",
+      "availability": 0.90,
+      "packetLoss": 0.08,
+      "latencyMs": 750,
+      "bandwidthFactor": 0.65,
+      "channelQuality": 0.68,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    }
+  ],
+  "initialConditions": {
+    "commHealth": 0.96,
+    "infoIntegrity": 0.94,
+    "initialDegradationState": "NORMAL"
+  },
+  "events": [
+    {
+      "id": "ev-01",
+      "time": 8000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-primary",
+      "severity": 0.0,
+      "message": "FIELD TEAM ALPHA telemetry uplink: Grid Alpha-7 nominal. Forward reconnaissance underway.",
+      "payload": {
+        "id": "rep-01",
+        "sourceName": "FIELD TEAM ALPHA",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-primary",
+        "content": "Grid Alpha-7 transit corridor status: CLEAR. No hostile contact or natural obstruction.",
+        "sourceReliability": 0.92,
+        "freshness": 1.0,
+        "consistency": 1.0,
+        "location": { "lat": 28.6650, "lng": 77.2720 }
+      }
+    },
+    {
+      "id": "ev-02",
+      "time": 18000,
+      "type": "LATENCY",
+      "target": "ch-primary",
+      "severity": 0.55,
+      "message": "PRIMARY DATA LINK carrier latency climbing rapidly. Microwave backhaul packet delay detected."
+    },
+    {
+      "id": "ev-03",
+      "time": 28000,
+      "type": "PACKET_LOSS",
+      "target": "ch-primary",
+      "severity": 0.45,
+      "message": "Uplink packet loss exceeding 38% on PRIMARY DATA LINK. Telemetry jitter rising."
+    },
+    {
+      "id": "ev-04",
+      "time": 38000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-primary",
+      "severity": 0.5,
+      "message": "OBSERVATION CELL: Drone feed reports anomalous smoke and potential road blockage at Alpha-7.",
+      "payload": {
+        "id": "rep-02",
+        "sourceName": "OBSERVATION CELL",
+        "sourceType": "OBSERVATION",
+        "channelId": "ch-primary",
+        "content": "Corridor Alpha-7 visually IMPEDED. Heavy dust/debris detected; transit hazardous.",
+        "sourceReliability": 0.84,
+        "freshness": 0.88,
+        "consistency": 0.5,
+        "contradictionGroupId": "cg-alpha7",
+        "location": { "lat": 28.6450, "lng": 77.2800 }
+      }
+    },
+    {
+      "id": "ev-05",
+      "time": 44000,
+      "type": "CONTRADICTION",
+      "target": "ch-secondary",
+      "severity": 0.8,
+      "message": "CONTRADICTION DETECTED: Relay-02 reports Alpha-7 open, contradicting Observation Cell feed!",
+      "payload": {
+        "id": "rep-03",
+        "sourceName": "TACTICAL RELAY 02",
+        "sourceType": "RELAY",
+        "channelId": "ch-secondary",
+        "content": "Relay acoustic telemetry indicates Alpha-7 is OPEN and traffic flowing unobstructed.",
+        "sourceReliability": 0.72,
+        "freshness": 0.75,
+        "consistency": 0.5,
+        "contradictionGroupId": "cg-alpha7",
+        "location": { "lat": 28.6420, "lng": 77.2750 }
+      }
+    },
+    {
+      "id": "ev-06",
+      "time": 56000,
+      "type": "RELAY_FAILURE",
+      "target": "ch-secondary",
+      "severity": 0.95,
+      "message": "CRITICAL ALERT: TACTICAL RELAY 02 power coupling severed! Secondary VHF radio link offline."
+    },
+    {
+      "id": "ev-07",
+      "time": 105000,
+      "type": "RECOVERY",
+      "target": "ch-fallback",
+      "severity": 0.3,
+      "message": "FALLBACK LINK established: Emergency Satcom auxiliary channel activated with verified telemetry."
+    }
+  ],
+  "decisionWindows": [
+    {
+      "id": "dw-01",
+      "openAtTick": 65000,
+      "durationMs": 35000,
+      "urgency": "CRITICAL",
+      "situation": "Primary link packet loss is 42%, Relay-02 has severed, and contradictory reports exist regarding corridor Alpha-7 obstruction. Team Alpha is 3 minutes from commitment point.",
+      "recommendedActions": ["VERIFY", "REQUEST_UPDATE", "SWITCH_INFORMATION_CHANNEL", "PAUSE"]
+    },
+    {
+      "id": "dw-02",
+      "openAtTick": 125000,
+      "durationMs": 30000,
+      "urgency": "MODERATE",
+      "situation": "Satcom fallback has verified partial corridor telemetry. Team Alpha requires operational order: adapt route to secondary corridor or confirm hold.",
+      "recommendedActions": ["ADAPT_PLAN", "RECONFIGURE_TEAM_COORDINATION", "CONTINUE"]
+    }
+  ],
+  "scoringWeights": {
+    "decisionQuality": 0.25,
+    "timeliness": 0.10,
+    "informationDiscipline": 0.20,
+    "sourceEvaluation": 0.10,
+    "communicationResilience": 0.15,
+    "coordination": 0.05,
+    "riskManagement": 0.10,
+    "adaptability": 0.05
+  },
+  "sources": [
+    {
+      "name": "NEXUS-C2 Synthetic Command Benchmark Engine",
+      "organization": "NEXUS-C2 Simulation Architecture",
+      "url": "local://nexus-c2/benchmark",
+      "usage": "Core deterministic stress-testing MSEL for SIH 2026 live demonstration"
+    }
+  ]
+}

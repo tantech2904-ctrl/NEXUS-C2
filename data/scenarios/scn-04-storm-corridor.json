@@ -1,0 +1,115 @@
+{
+  "id": "SCN-04",
+  "version": "1.0.0",
+  "title": "STORM CORRIDOR",
+  "historicalBasis": "Calibrated with NOAA IBTrACS cyclone trajectory & NOAA Storm Events database.",
+  "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
+  "difficulty": "ADVANCED",
+  "seed": 404,
+  "durationMs": 180000,
+  "stalenessThresholdSeconds": 30,
+  "environment": {
+    "type": "SEVERE_WEATHER",
+    "severity": 0.82,
+    "weatherDescription": "Severe tropical depression eye passing over tactical corridor; torrential squalls.",
+    "visibilityKm": 1.5
+  },
+  "entities": [
+    {
+      "id": "node-cmd",
+      "name": "NEXUS COMMAND DELTA",
+      "type": "COMMAND_NODE",
+      "coordinates": [85.8245, 20.2961],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 1.0,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-recon",
+      "name": "TACTICAL RECON KILO",
+      "type": "FIELD_TEAM",
+      "coordinates": [86.2000, 20.4500],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.88,
+      "lastContactTick": 0
+    }
+  ],
+  "communicationChannels": [
+    {
+      "id": "ch-primary",
+      "name": "TACTICAL UHF COMMS",
+      "type": "PRIMARY",
+      "availability": 0.90,
+      "packetLoss": 0.05,
+      "latencyMs": 90,
+      "bandwidthFactor": 0.90,
+      "channelQuality": 0.85,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-secondary",
+      "name": "HARDWIRE FIELD CABLE",
+      "type": "SECONDARY",
+      "availability": 0.98,
+      "packetLoss": 0.00,
+      "latencyMs": 25,
+      "bandwidthFactor": 0.99,
+      "channelQuality": 0.98,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    }
+  ],
+  "initialConditions": {
+    "commHealth": 0.91,
+    "infoIntegrity": 0.90,
+    "initialDegradationState": "NORMAL"
+  },
+  "events": [
+    {
+      "id": "s-ev-01",
+      "time": 25000,
+      "type": "WEATHER_SHIFT",
+      "severity": 0.9,
+      "message": "NOAA Track Ingress: Tropical storm eyewall envelope enters Sector Delta."
+    },
+    {
+      "id": "s-ev-02",
+      "time": 40000,
+      "type": "BANDWIDTH_CONGESTION",
+      "target": "ch-primary",
+      "severity": 0.75,
+      "message": "Severe rain fade attenuating UHF RF signals. Packet transmission times quadruple."
+    }
+  ],
+  "decisionWindows": [
+    {
+      "id": "s-dw-01",
+      "openAtTick": 60000,
+      "durationMs": 30000,
+      "urgency": "MODERATE",
+      "situation": "Storm envelope is degrading wireless channels. Hardwire cable is immune but limited in range. Trainee must reconfigure communication coordination.",
+      "recommendedActions": ["RECONFIGURE_TEAM_COORDINATION", "ADAPT_PLAN", "PAUSE"]
+    }
+  ],
+  "scoringWeights": {
+    "decisionQuality": 0.25,
+    "timeliness": 0.10,
+    "informationDiscipline": 0.20,
+    "sourceEvaluation": 0.10,
+    "communicationResilience": 0.20,
+    "coordination": 0.05,
+    "riskManagement": 0.05,
+    "adaptability": 0.05
+  },
+  "sources": [
+    {
+      "name": "NOAA IBTrACS Tropical Cyclone Archive",
+      "organization": "National Oceanic and Atmospheric Administration",
+      "url": "https://www.ncei.noaa.gov/products/international-best-track-archive",
+      "usage": "Calibrates weather-induced RF degradation along storm eye corridor"
+    }
+  ]
+}

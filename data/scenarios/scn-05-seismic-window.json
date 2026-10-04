@@ -1,0 +1,125 @@
+{
+  "id": "SCN-05",
+  "version": "1.0.0",
+  "title": "SEISMIC WINDOW",
+  "historicalBasis": "Calibrated with USGS Earthquake Catalog FDSN event feed and ShakeMap intensity data.",
+  "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
+  "difficulty": "ADVANCED",
+  "seed": 505,
+  "durationMs": 180000,
+  "stalenessThresholdSeconds": 30,
+  "environment": {
+    "type": "SEISMIC_SHOCK",
+    "severity": 0.85,
+    "weatherDescription": "Magnitude 7.4 seismic event; dust cloud obscuring optical observation drones.",
+    "visibilityKm": 3.0
+  },
+  "entities": [
+    {
+      "id": "node-cmd",
+      "name": "REGIONAL EMERGENCY HQ",
+      "type": "COMMAND_NODE",
+      "coordinates": [72.8777, 19.0760],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 1.0,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-scout",
+      "name": "SCOUT TEAM SIERRA",
+      "type": "FIELD_TEAM",
+      "coordinates": [72.9500, 19.1200],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.94,
+      "lastContactTick": 0
+    }
+  ],
+  "communicationChannels": [
+    {
+      "id": "ch-primary",
+      "name": "METRO FIBER OPTIC RING",
+      "type": "PRIMARY",
+      "availability": 0.98,
+      "packetLoss": 0.01,
+      "latencyMs": 40,
+      "bandwidthFactor": 0.99,
+      "channelQuality": 0.97,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-secondary",
+      "name": "TACTICAL DRONE MESH",
+      "type": "SECONDARY",
+      "availability": 0.85,
+      "packetLoss": 0.10,
+      "latencyMs": 280,
+      "bandwidthFactor": 0.70,
+      "channelQuality": 0.76,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    }
+  ],
+  "initialConditions": {
+    "commHealth": 0.95,
+    "infoIntegrity": 0.95,
+    "initialDegradationState": "NORMAL"
+  },
+  "events": [
+    {
+      "id": "se-ev-01",
+      "time": 20000,
+      "type": "DROPOUT",
+      "target": "ch-primary",
+      "severity": 0.9,
+      "message": "SEISMIC SHOCK: Ground rupture severs primary fiber optic loop."
+    },
+    {
+      "id": "se-ev-02",
+      "time": 32000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-secondary",
+      "message": "Scout Sierra reports bridge collapsed; immediate evacuation detour required.",
+      "payload": {
+        "id": "se-rep-01",
+        "sourceName": "SCOUT TEAM SIERRA",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-secondary",
+        "content": "River overpass span dropped into gorge. Entire sector cut off.",
+        "sourceReliability": 0.85,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "decisionWindows": [
+    {
+      "id": "se-dw-01",
+      "openAtTick": 48000,
+      "durationMs": 30000,
+      "urgency": "CRITICAL",
+      "situation": "Primary fiber dead. Scout Sierra indicates overpass is destroyed. Trainee must re-route response assets.",
+      "recommendedActions": ["ADAPT_PLAN", "ESCALATE", "VERIFY"]
+    }
+  ],
+  "scoringWeights": {
+    "decisionQuality": 0.25,
+    "timeliness": 0.15,
+    "informationDiscipline": 0.20,
+    "sourceEvaluation": 0.10,
+    "communicationResilience": 0.15,
+    "coordination": 0.05,
+    "riskManagement": 0.05,
+    "adaptability": 0.05
+  },
+  "sources": [
+    {
+      "name": "USGS Earthquake Catalog / FDSN Event Web Service",
+      "organization": "United States Geological Survey",
+      "url": "https://earthquake.usgs.gov/fdsnws/event/1/",
+      "usage": "Calibrates sudden infrastructure disruption following ground displacement"
+    }
+  ]
+}

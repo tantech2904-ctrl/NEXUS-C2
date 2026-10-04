@@ -1,0 +1,157 @@
+{
+  "id": "SCN-02",
+  "version": "1.0.0",
+  "title": "ANATOLIA // PARTIAL RESILIENCE",
+  "historicalBasis": "Türkiye/Syria Earthquake Disaster, February 2023. Calibrated using ITU/EBU Crisis Communications Report 'Radio in times of crisis'.",
+  "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
+  "difficulty": "ADVANCED",
+  "seed": 202,
+  "durationMs": 180000,
+  "stalenessThresholdSeconds": 35,
+  "environment": {
+    "type": "SEISMIC_SHOCK",
+    "severity": 0.88,
+    "weatherDescription": "Severe winter conditions combined with massive structural collapse of cellular fiber interconnects.",
+    "visibilityKm": 6.0
+  },
+  "entities": [
+    {
+      "id": "node-cmd",
+      "name": "REGIONAL CRISIS DESK (ADANA SECTOR)",
+      "type": "COMMAND_NODE",
+      "coordinates": [35.3213, 37.0000],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-mobile",
+      "health": 1.0,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-antakya",
+      "name": "FORWARD RESCUE UNIT ANTAKYA",
+      "type": "FIELD_TEAM",
+      "coordinates": [36.1600, 36.2000],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-terrestrial",
+      "health": 0.92,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-fm",
+      "name": "PUBLIC EMERGENCY FM RELAY",
+      "type": "RELAY_NODE",
+      "coordinates": [35.8000, 36.5000],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-fm",
+      "health": 0.96,
+      "lastContactTick": 0
+    }
+  ],
+  "communicationChannels": [
+    {
+      "id": "ch-mobile",
+      "name": "COMMERCIAL MOBILE TELCO NETWORK",
+      "type": "PRIMARY",
+      "availability": 0.62,
+      "packetLoss": 0.32,
+      "latencyMs": 850,
+      "bandwidthFactor": 0.50,
+      "channelQuality": 0.48,
+      "status": "DEGRADED",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-terrestrial",
+      "name": "GOVERNMENT TERRESTRIAL LAND MOBILE RADIO",
+      "type": "RADIO",
+      "availability": 0.82,
+      "packetLoss": 0.08,
+      "latencyMs": 120,
+      "bandwidthFactor": 0.85,
+      "channelQuality": 0.79,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-fm",
+      "name": "EMERGENCY BROADCAST FM AUDIO CARRIER",
+      "type": "FALLBACK",
+      "availability": 0.94,
+      "packetLoss": 0.01,
+      "latencyMs": 40,
+      "bandwidthFactor": 0.98,
+      "channelQuality": 0.93,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    }
+  ],
+  "initialConditions": {
+    "commHealth": 0.73,
+    "infoIntegrity": 0.75,
+    "initialDegradationState": "PARTIAL_DROPOUT"
+  },
+  "events": [
+    {
+      "id": "a-ev-01",
+      "time": 12000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-mobile",
+      "message": "Mobile SMS feed from volunteer group: Hospital generators running out of fuel.",
+      "payload": {
+        "id": "a-rep-01",
+        "sourceName": "VOLUNTEER SMS FEED",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-mobile",
+        "content": "Hospital Generator: FUEL CRITICAL. Oxygen failure imminent in 20 minutes.",
+        "sourceReliability": 0.55,
+        "freshness": 0.9,
+        "consistency": 1.0
+      }
+    },
+    {
+      "id": "a-ev-02",
+      "time": 28000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fm",
+      "message": "Civil Defense FM Broadcast: Antakya Central Hospital refueled 15 minutes ago via military fuel tanker.",
+      "payload": {
+        "id": "a-rep-02",
+        "sourceName": "CIVIL DEFENSE FM",
+        "sourceType": "OBSERVATION",
+        "channelId": "ch-fm",
+        "content": "Hospital refueled at 11:45. Fuel reserves stable for 72 hours. Medical oxygen operational.",
+        "sourceReliability": 0.94,
+        "freshness": 1.0,
+        "consistency": 0.5,
+        "contradictionGroupId": "cg-anatolia-fuel"
+      }
+    }
+  ],
+  "decisionWindows": [
+    {
+      "id": "a-dw-01",
+      "openAtTick": 45000,
+      "durationMs": 30000,
+      "urgency": "MODERATE",
+      "situation": "SMS mobile network reports hospital emergency fuel crisis, but high-reliability FM Broadcast reports tanks full. Fuel delivery convoy awaiting dispatch orders.",
+      "recommendedActions": ["VERIFY", "ASSESS", "STAND_BY", "SWITCH_INFORMATION_CHANNEL"]
+    }
+  ],
+  "scoringWeights": {
+    "decisionQuality": 0.25,
+    "timeliness": 0.10,
+    "informationDiscipline": 0.25,
+    "sourceEvaluation": 0.20,
+    "communicationResilience": 0.10,
+    "coordination": 0.05,
+    "riskManagement": 0.025,
+    "adaptability": 0.025
+  },
+  "sources": [
+    {
+      "name": "ITU / EBU Crisis Communications Report — Türkiye 2023",
+      "organization": "ITU / European Broadcasting Union",
+      "url": "https://www.itu.int/en/ITU-D/Emergency-Telecommunications/Documents/2024/EBU-MIS_Radio_in_times_of_crisis.pdf",
+      "usage": "Demonstrates heterogeneous channel resilience and source evaluation during disaster"
+    }
+  ]
+}

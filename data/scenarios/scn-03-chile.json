@@ -1,0 +1,125 @@
+{
+  "id": "SCN-03",
+  "version": "1.0.0",
+  "title": "CHILE // FALLBACK WINDOW",
+  "historicalBasis": "Chile Earthquake & Tsunami, February 2010. Calibrated using ITU Disaster Response Documentation 'Saving Lives: Emergency Telecommunications'.",
+  "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
+  "difficulty": "ADVANCED",
+  "seed": 303,
+  "durationMs": 180000,
+  "stalenessThresholdSeconds": 35,
+  "environment": {
+    "type": "SEISMIC_SHOCK",
+    "severity": 0.88,
+    "weatherDescription": "Coastal seismic shock triggering tsunami warnings and complete microwave relay severance.",
+    "visibilityKm": 8.0
+  },
+  "entities": [
+    {
+      "id": "node-cmd",
+      "name": "COASTAL COMMAND BASE (VALPARAISO)",
+      "type": "COMMAND_NODE",
+      "coordinates": [-71.6127, -33.0472],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 1.0,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-patrol",
+      "name": "COASTAL PATROL LIMA",
+      "type": "FIELD_TEAM",
+      "coordinates": [-71.5500, -32.9500],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.95,
+      "lastContactTick": 0
+    }
+  ],
+  "communicationChannels": [
+    {
+      "id": "ch-primary",
+      "name": "PRIMARY MICROWAVE LINK",
+      "type": "PRIMARY",
+      "availability": 0.96,
+      "packetLoss": 0.02,
+      "latencyMs": 70,
+      "bandwidthFactor": 0.96,
+      "channelQuality": 0.92,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-fallback",
+      "name": "EMERGENCY HF RADIO NET",
+      "type": "FALLBACK",
+      "availability": 0.75,
+      "packetLoss": 0.18,
+      "latencyMs": 650,
+      "bandwidthFactor": 0.60,
+      "channelQuality": 0.62,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    }
+  ],
+  "initialConditions": {
+    "commHealth": 0.90,
+    "infoIntegrity": 0.92,
+    "initialDegradationState": "NORMAL"
+  },
+  "events": [
+    {
+      "id": "c-ev-01",
+      "time": 20000,
+      "type": "DROPOUT",
+      "target": "ch-primary",
+      "severity": 1.0,
+      "message": "TOTAL SEVERANCE: Microwave transmission tower collapsed by earthquake shock."
+    },
+    {
+      "id": "c-ev-02",
+      "time": 35000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "Weak HF radio carrier detected from Coastal Patrol Lima.",
+      "payload": {
+        "id": "c-rep-01",
+        "sourceName": "COASTAL PATROL LIMA",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-fallback",
+        "content": "Harbor water receding rapidly. Tsunami arrival calculated in 12 minutes.",
+        "sourceReliability": 0.91,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
+    }
+  ],
+  "decisionWindows": [
+    {
+      "id": "c-dw-01",
+      "openAtTick": 50000,
+      "durationMs": 30000,
+      "urgency": "CRITICAL",
+      "situation": "Primary microwave backhaul dead. HF radio reports harbor water receding. Trainee must switch channels and order evacuation.",
+      "recommendedActions": ["SWITCH_INFORMATION_CHANNEL", "ESCALATE", "ADAPT_PLAN"]
+    }
+  ],
+  "scoringWeights": {
+    "decisionQuality": 0.30,
+    "timeliness": 0.15,
+    "informationDiscipline": 0.15,
+    "sourceEvaluation": 0.10,
+    "communicationResilience": 0.20,
+    "coordination": 0.05,
+    "riskManagement": 0.025,
+    "adaptability": 0.025
+  },
+  "sources": [
+    {
+      "name": "ITU Emergency Telecommunications in Disaster Response — Chile 2010",
+      "organization": "International Telecommunication Union",
+      "url": "https://www.itu.int/en/ITU-D/Emergency-Telecommunications/Pages/ITUDisasterResponse.aspx",
+      "usage": "Calibrates catastrophic primary link failure and fallback radio activation"
+    }
+  ]
+}

@@ -1,0 +1,184 @@
+{
+  "id": "SCN-01",
+  "version": "1.0.0",
+  "title": "MARIA // COMMUNICATIONS SHOCK",
+  "historicalBasis": "Hurricane Maria, Puerto Rico, September 2017. Calibrated using FCC Public Communications Status Reports DOC-348851A1 and DOC-353805A1.",
+  "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
+  "difficulty": "ADVANCED",
+  "seed": 101,
+  "durationMs": 180000,
+  "stalenessThresholdSeconds": 30,
+  "environment": {
+    "type": "SEVERE_WEATHER",
+    "severity": 0.92,
+    "weatherDescription": "Category 4 tropical cyclone landfall causing massive infrastructure and wireline backhaul collapse.",
+    "visibilityKm": 2.0
+  },
+  "entities": [
+    {
+      "id": "node-cmd",
+      "name": "DISASTER RESPONSE COMMAND (METRO)",
+      "type": "COMMAND_NODE",
+      "coordinates": [-66.1057, 18.4655],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-cellular",
+      "health": 1.0,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-relay-1",
+      "name": "MOUNTAIN TELECOM TOWER (EL YUNQUE)",
+      "type": "RELAY_NODE",
+      "coordinates": [-65.7950, 18.3150],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-cellular",
+      "health": 0.85,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-sar-1",
+      "name": "SEARCH & RESCUE UNIT ECHO",
+      "type": "FIELD_TEAM",
+      "coordinates": [-65.9800, 18.2300],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-cellular",
+      "health": 0.95,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-sar-2",
+      "name": "EVACUATION ESCORT FOXTROT",
+      "type": "FIELD_TEAM",
+      "coordinates": [-66.3000, 18.3800],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-radio",
+      "health": 0.90,
+      "lastContactTick": 0
+    }
+  ],
+  "communicationChannels": [
+    {
+      "id": "ch-cellular",
+      "name": "COMMERCIAL CELLULAR TOWER BACKHAUL",
+      "type": "PRIMARY",
+      "availability": 0.95,
+      "packetLoss": 0.03,
+      "latencyMs": 95,
+      "bandwidthFactor": 0.95,
+      "channelQuality": 0.91,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-radio",
+      "name": "EMERGENCY VHF MUNICIPAL RADIO",
+      "type": "RADIO",
+      "availability": 0.88,
+      "packetLoss": 0.08,
+      "latencyMs": 180,
+      "bandwidthFactor": 0.80,
+      "channelQuality": 0.74,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-sat",
+      "name": "DEPLOYABLE BGAN SATELLITE TERMINAL",
+      "type": "SATELLITE",
+      "availability": 0.98,
+      "packetLoss": 0.02,
+      "latencyMs": 920,
+      "bandwidthFactor": 0.60,
+      "channelQuality": 0.66,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    }
+  ],
+  "initialConditions": {
+    "commHealth": 0.92,
+    "infoIntegrity": 0.90,
+    "initialDegradationState": "NORMAL"
+  },
+  "events": [
+    {
+      "id": "m-ev-01",
+      "time": 10000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-cellular",
+      "message": "SAR Unit Echo reports coastal bridge intact; evacuation route Bravo is clear.",
+      "payload": {
+        "id": "m-rep-01",
+        "sourceName": "SAR UNIT ECHO",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-cellular",
+        "content": "Coastal bridge Route 3 is CLEAR. Medical transport proceeding.",
+        "sourceReliability": 0.88,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "id": "m-ev-02",
+      "time": 22000,
+      "type": "DROPOUT",
+      "target": "ch-cellular",
+      "severity": 0.85,
+      "message": "FCC CALIBRATION EVENT: 85% of regional cell sites knocked offline due to power loss."
+    },
+    {
+      "id": "m-ev-03",
+      "time": 38000,
+      "type": "CONTRADICTION",
+      "target": "ch-radio",
+      "severity": 0.75,
+      "message": "VHF Radio broadcast contradicts: Route 3 coastal bridge impassable due to flash flooding!",
+      "payload": {
+        "id": "m-rep-02",
+        "sourceName": "MUNICIPAL DISPATCH",
+        "sourceType": "OBSERVATION",
+        "channelId": "ch-radio",
+        "content": "Route 3 bridge WASHED OUT by river surge. DO NOT DISPATCH CONVOY.",
+        "sourceReliability": 0.78,
+        "freshness": 0.85,
+        "consistency": 0.5,
+        "contradictionGroupId": "cg-maria-bridge"
+      }
+    },
+    {
+      "id": "m-ev-04",
+      "time": 95000,
+      "type": "RECOVERY",
+      "target": "ch-sat",
+      "severity": 0.2,
+      "message": "Satellite terminal uplink restored: Aerial SAR recon verifies safe alternative route."
+    }
+  ],
+  "decisionWindows": [
+    {
+      "id": "m-dw-01",
+      "openAtTick": 55000,
+      "durationMs": 35000,
+      "urgency": "CRITICAL",
+      "situation": "Cellular backhaul has collapsed, radio channel conflicts with prior clearance of Route 3 bridge. Medical convoy is holding at checkpoint.",
+      "recommendedActions": ["VERIFY", "SWITCH_INFORMATION_CHANNEL", "PAUSE", "ADAPT_PLAN"]
+    }
+  ],
+  "scoringWeights": {
+    "decisionQuality": 0.25,
+    "timeliness": 0.10,
+    "informationDiscipline": 0.20,
+    "sourceEvaluation": 0.15,
+    "communicationResilience": 0.15,
+    "coordination": 0.05,
+    "riskManagement": 0.05,
+    "adaptability": 0.05
+  },
+  "sources": [
+    {
+      "name": "FCC Hurricane Maria Communications Status Report",
+      "organization": "Federal Communications Commission",
+      "url": "https://docs.fcc.gov/public/attachments/DOC-348851A1.pdf",
+      "usage": "Calibrates infrastructure collapse and cell site failure rates"
+    }
+  ]
+}

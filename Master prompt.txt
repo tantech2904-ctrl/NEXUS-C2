@@ -1,0 +1,1969 @@
+MASTER BUILD BRIEF
+==============================================================
+
+PROJECT
+==============================================================
+
+Build a production-quality, fully interactive browser-based training
+simulation for Smart India Hackathon 2026 problem statement SIH26248:
+
+"Immersive Multi-Domain Decision-Making Trainer for Degraded Communication
+Environments"
+
+PRODUCT NAME
+==============================================================
+
+COMMSHIELD
+Degraded Command Decision Trainer
+
+Use the product name throughout the UI.
+
+Tagline:
+
+"DECIDE UNDER UNCERTAINTY."
+
+Secondary descriptor:
+
+"Immersive multi-domain command training for degraded information
+environments."
+
+==============================================================
+PRIMARY OBJECTIVE
+==============================================================
+
+Do NOT build a generic administrative dashboard.
+
+Build an immersive command-and-control TRAINING SIMULATOR.
+
+The user must feel as though they have entered a professional command
+training environment.
+
+The central experience is:
+
+START SCENARIO
+        ↓
+NORMAL INFORMATION FLOW
+        ↓
+ENVIRONMENTAL / COMMUNICATION EVENT
+        ↓
+INFORMATION QUALITY DEGRADES
+        ↓
+REPORTS ARRIVE LATE
+        ↓
+REPORTS DISAPPEAR
+        ↓
+REPORTS CONFLICT
+        ↓
+THE TRAINEE MUST DECIDE
+        ↓
+SYSTEM SIMULATES CONSEQUENCE
+        ↓
+AFTER-ACTION REVIEW
+        ↓
+PERFORMANCE SCORE
+        ↓
+INSTRUCTOR ANALYTICS
+
+The experience must be understandable within 15 seconds by a judge who
+has never seen the application before.
+
+==============================================================
+IMPORTANT PRODUCT BOUNDARY
+==============================================================
+
+This is a training and decision-support simulation.
+
+Do NOT use classified information.
+
+Do NOT claim that synthetic units, locations, command structures, or
+events represent real military deployments.
+
+Do NOT reproduce actual military facility coordinates, force dispositions,
+weapon employment procedures, targeting workflows, or operational plans.
+
+Use fictional training formations, fictional command callsigns, and
+fictional operational objectives.
+
+Use public historical disaster/communications datasets ONLY to calibrate
+environmental stress, communication degradation, recovery behaviour,
+geospatial context, and information-reliability concepts.
+
+Every historical scenario must contain a visible provenance label:
+
+"HISTORICAL BASIS — PUBLIC DATA"
+
+and:
+
+"Command entities and scenario injects are synthetic training constructs."
+
+==============================================================
+DESIGN LANGUAGE
+==============================================================
+
+Visual direction:
+
+Modern military command-training system.
+Professional defence simulation.
+High-end C2 / mission-simulator aesthetic.
+Minimalist rather than cheesy.
+Serious rather than arcade-like.
+Information-dense but extremely navigable.
+
+Do NOT make it look like:
+- a cyberpunk game
+- a hacker dashboard
+- an RGB gaming website
+- an esports HUD
+- a generic SaaS analytics dashboard
+
+The visual language should resemble an advanced professional simulation
+terminal.
+
+Use:
+
+- near-black graphite background
+- charcoal panels
+- subtle grid overlays
+- restrained amber alerts
+- muted cyan information channels
+- red only for urgent threat/degradation status
+- white/grey typography
+- subtle scanlines
+- thin vector borders
+- restrained glow
+- tactical contour/grid motifs
+- waveform elements
+- packet-flow animation
+- status indicators
+- animated command logs
+- clean military-instrumentation typography
+
+Do not overuse glow.
+
+The UI must remain readable.
+
+==============================================================
+TECH STACK
+==============================================================
+
+Use:
+
+- Next.js
+- React
+- TypeScript
+- Tailwind CSS
+- shadcn/ui for base primitives where appropriate
+- Zustand for global simulation state
+- XState or an equivalent deterministic state machine for scenario state
+- MapLibre GL JS for the main interactive geospatial display
+- Turf.js for client-side spatial calculations
+- Framer Motion for UI transitions
+- GSAP only for highly controlled timeline/visual effects if needed
+- Recharts for analytics
+- Lucide icons
+- Web Audio API or Howler.js for communication audio
+- Zod for runtime validation
+- html-to-image and/or jsPDF for AAR export
+- IndexedDB/localStorage for local scenario persistence
+- Web Workers for heavy simulation/calculation work
+- PWA support
+
+No Python backend.
+
+No mandatory database.
+
+No mandatory third-party API.
+
+The project must work fully in DEMO MODE with local data.
+
+Optional production extension:
+
+- Supabase Realtime for multiplayer synchronization
+- Supabase/Postgres for instructor/session persistence
+
+The application must NEVER fail to boot because Supabase is missing.
+
+==============================================================
+DEPLOYMENT
+==============================================================
+
+Primary target:
+
+Vercel
+
+The repository must contain:
+
+README.md
+.env.example
+package.json
+src/
+public/
+data/
+scripts/
+components/
+lib/
+types/
+tests/
+
+The application must deploy using:
+
+npm install
+npm run build
+npm run start
+
+Provide:
+
+npm run dev
+npm run build
+npm run lint
+
+No obscure deployment dependency.
+
+Do not require a local database.
+
+No API keys in client-side source.
+
+If a third-party service is optional, gracefully fall back to local mock mode.
+
+==============================================================
+CORE MODES
+==============================================================
+
+Build these modes:
+
+1. COMMANDER / TRAINEE MODE
+2. INSTRUCTOR CONTROL ROOM
+3. SCENARIO LIBRARY
+4. SCENARIO BUILDER
+5. AFTER-ACTION REVIEW
+6. DATA PROVENANCE / SOURCES
+7. SYSTEM SETTINGS
+
+==============================================================
+LANDING PAGE
+==============================================================
+
+Create a cinematic but fast landing experience.
+
+Screen:
+
+COMMSHIELD
+
+DECIDE UNDER UNCERTAINTY.
+
+"IMMERSIVE MULTI-DOMAIN DECISION-MAKING TRAINER"
+
+Buttons:
+
+[ENTER TRAINING]
+[INSTRUCTOR CONTROL]
+[SCENARIO LIBRARY]
+[ABOUT / DATA SOURCES]
+
+Show subtle animated network nodes behind the interface.
+
+Show:
+
+SYSTEM STATUS: OPERATIONAL
+SIMULATION ENGINE: READY
+DEGRADATION ENGINE: READY
+AAR ENGINE: READY
+DATA MODE: PUBLIC / SYNTHETIC
+
+Then transition directly into the trainer.
+
+Do NOT create a long marketing page.
+
+The prototype is the product.
+
+==============================================================
+TRAINEE COMMAND CONSOLE
+==============================================================
+
+This is the centrepiece.
+
+Desktop layout:
+
++-------------------------------------------------------------+
+| HEADER / SESSION / CLOCK / COMMS STATUS                    |
++----------------------+----------------------+---------------+
+|                      |                      |               |
+|  OPERATIONAL MAP     | INFORMATION FEED     | DECISION      |
+|                      |                      | PANEL         |
+|                      |                      |               |
+|  LIVE MAP            | reports              | current       |
+|  terrain             | messages             | situation     |
+|  entities            | alerts               | options       |
+|  links               | confidence           | rationale     |
+|  network health      | delayed items        | submit       |
+|                      | contradictions      | decision     |
+|                      |                      |               |
++----------------------+----------------------+---------------+
+| COMMUNICATION HEALTH / NETWORK / TIMELINE / EVENT INDICATOR|
++-------------------------------------------------------------+
+
+==============================================================
+TOP HEADER
+==============================================================
+
+Show:
+
+SCENARIO ID
+SESSION ID
+TRAINING CLOCK
+MISSION PHASE
+COMMS HEALTH
+INFORMATION INTEGRITY
+SYSTEM STATUS
+
+Example:
+
+SCN-07
+EXERCISE: SILENT HORIZON
+T+04:38
+PHASE 02 / DEGRADED INFORMATION
+
+COMMS
+██████░░░░ 61%
+
+INFORMATION INTEGRITY
+█████░░░░░ 52%
+
+Make these values update continuously.
+
+==============================================================
+MAIN MAP
+==============================================================
+
+Use MapLibre.
+
+Default mode:
+
+fictional training area.
+
+The map may be geographically inspired by public terrain/road data,
+but all command entities must be synthetic.
+
+Use:
+
+- command node
+- relay node
+- field team
+- observation node
+- support node
+- communications links
+- uncertainty rings
+- degraded zones
+- route corridors
+- information provenance markers
+
+Every entity must animate subtly.
+
+Examples:
+
+COMMAND NODE:
+stable pulsing ring
+
+COMMUNICATION LINK:
+moving particles when healthy
+
+DEGRADED LINK:
+slower particles + intermittent gaps
+
+OFFLINE LINK:
+broken/dashed line
+
+UNCERTAIN ENTITY:
+flickering halo
+
+CONTRADICTORY DATA:
+alternating position estimates
+
+Do not overload the map.
+
+==============================================================
+COMMUNICATION MODEL
+==============================================================
+
+This is one of the most important components.
+
+Each communication channel should have:
+
+latency
+packet loss
+availability
+bandwidth
+confidence
+last confirmed timestamp
+source reliability
+staleness
+channel type
+
+Example channel state:
+
+PRIMARY DATA LINK
+Latency: 820 ms
+Packet loss: 43%
+Availability: 56%
+Confidence: 61%
+Last confirmed: 00:00:42 ago
+
+SECONDARY RADIO
+Latency: 240 ms
+Packet loss: 8%
+Availability: 88%
+Confidence: 79%
+
+FALLBACK LINK
+Latency: 1400 ms
+Packet loss: 21%
+Availability: 73%
+Confidence: 68%
+
+Use these to drive simulation behaviour.
+
+==============================================================
+DEGRADATION ENGINE
+==============================================================
+
+Implement a deterministic degradation engine.
+
+Possible degradation states:
+
+NORMAL
+MINOR_DELAY
+HIGH_LATENCY
+PARTIAL_DROPOUT
+SEVERE_DROPOUT
+STALE_INFORMATION
+CONTRADICTORY_REPORTS
+PARTIAL_SENSOR_LOSS
+RELAY_FAILURE
+BANDWIDTH_CONGESTION
+RECOVERY
+RECOVERED
+
+The state engine should support combinations.
+
+Example:
+
+NORMAL
+
+then:
+
+PRIMARY LINK LATENCY +180ms
+
+then:
+
+PACKET LOSS +15%
+
+then:
+
+FIELD REPORTS DELAYED
+
+then:
+
+ONE SENSOR FEED OFFLINE
+
+then:
+
+TWO REPORTS CONTRADICT
+
+then:
+
+DECISION REQUIRED
+
+This sequence should be visible to the trainee.
+
+==============================================================
+INFORMATION RELIABILITY ENGINE
+==============================================================
+
+This is the intellectual core of the application.
+
+Every information item must have:
+
+source
+timestamp
+age
+confidence
+verification status
+channel quality
+consistency
+staleness
+location certainty
+
+Example:
+
+FIELD REPORT
+Source: ALPHA TEAM
+Age: 7.2 sec
+Channel: DEGRADED RADIO
+Base confidence: 0.82
+Current confidence: 0.58
+
+Do not simply mark reports TRUE or FALSE.
+
+The simulator is about decision-making under uncertainty.
+
+A report can be:
+
+CONFIRMED
+LIKELY
+UNCERTAIN
+STALE
+CONTRADICTED
+UNAVAILABLE
+
+Create a calculated:
+
+INFORMATION RELIABILITY SCORE
+
+Use a transparent formula.
+
+Example:
+
+reliability =
+sourceReliability
+* freshnessFactor
+* channelQuality
+* consistencyFactor
+
+Make the formula inspectable in instructor mode.
+
+==============================================================
+CONTRADICTION ENGINE
+==============================================================
+
+Inject conflicts naturally.
+
+Example:
+
+10:02:44
+FIELD REPORT:
+"ROUTE STATUS NOMINAL"
+
+10:02:49
+OBSERVATION FEED:
+"OBSTRUCTION POSSIBLE"
+
+10:02:56
+RELAY:
+"ROUTE STATUS UNKNOWN"
+
+Do not force the trainee toward one answer.
+
+The objective is to test:
+
+- verification
+- prioritisation
+- information-source evaluation
+- communication discipline
+- decision speed
+- uncertainty management
+
+==============================================================
+DECISION SYSTEM
+==============================================================
+
+Never reduce decision-making to a single "correct answer".
+
+Use decision classes:
+
+ASSESS
+VERIFY
+CONTINUE
+PAUSE
+REQUEST UPDATE
+SWITCH INFORMATION CHANNEL
+ESCALATE
+RECONFIGURE TEAM COORDINATION
+STAND BY
+ADAPT PLAN
+
+The trainee should also provide:
+
+RATIONALE
+
+Allow:
+
+[SELECT DECISION]
+
+and:
+
+[ADD RATIONALE]
+
+Rationale examples:
+
+"Primary source unreliable; seeking independent confirmation."
+
+"Maintaining current posture while validating conflicting reports."
+
+Do not generate a fake "military command order."
+
+Keep it as a training decision.
+
+==============================================================
+DECISION SCORING
+==============================================================
+
+Score the trainee across multiple dimensions:
+
+DECISION QUALITY
+TIMELINESS
+INFORMATION DISCIPLINE
+SOURCE EVALUATION
+COMMUNICATION RESILIENCE
+COORDINATION
+RISK MANAGEMENT
+ADAPTABILITY
+
+Example:
+
+Decision Quality     87
+Timeliness            93
+Information Discipline 91
+Coordination          78
+Risk Management      89
+
+Overall:
+
+86 / 100
+
+Do not simply reward the fastest response.
+
+A fast decision based on poor information should lose points.
+
+A slower, well-justified decision may outperform a reflexive response.
+
+==============================================================
+EVENT OUTCOME ENGINE
+==============================================================
+
+After a decision, simulate a controlled consequence.
+
+Never claim to predict a real military outcome.
+
+Use abstract outcomes:
+
+positive
+neutral
+suboptimal
+high-risk
+
+Example:
+
+DECISION OUTCOME
+
+Information verification initiated.
+Communication redundancy improved.
+Team coordination remained within safe limits.
+
+Then provide:
+
+WHY THIS MATTERED
+
+and:
+
+WHAT INFORMATION WAS AVAILABLE AT DECISION TIME
+
+==============================================================
+COMMUNICATION EVENT FEED
+==============================================================
+
+Create a live terminal-like event stream.
+
+Examples:
+
+[10:02:31] CHANNEL PRIMARY: HEALTHY
+[10:02:42] ENVIRONMENT: SEVERE WEATHER
+[10:02:46] LINK PRIMARY: LATENCY INCREASE
+[10:02:49] FIELD REPORT: DELAYED
+[10:02:55] OBSERVATION REPORT: CONFLICT
+[10:03:01] DECISION WINDOW OPEN
+
+Different categories must have distinct visual treatment:
+
+SYSTEM
+INFO
+WARNING
+ALERT
+COMMAND
+TRAINING
+
+==============================================================
+MISSION TIMER
+==============================================================
+
+Use a training clock.
+
+Example:
+
+T+00:00
+T+00:10
+T+00:20
+
+The scenario progresses independently of wall-clock time.
+
+Allow instructor speed controls:
+
+0.5x
+1x
+2x
+5x
+PAUSE
+
+==============================================================
+SCENARIO ENGINE
+==============================================================
+
+Represent scenarios as data, not hard-coded components.
+
+Example schema:
+
+{
+  "id": "SCN-001",
+  "title": "...",
+  "historicalBasis": "...",
+  "environment": {...},
+  "entities": [...],
+  "communicationChannels": [...],
+  "initialConditions": {...},
+  "events": [...],
+  "decisionWindows": [...],
+  "scoring": {...},
+  "sources": [...]
+}
+
+Create a Master Scenario Event List (MSEL)-style structure.
+
+Each event should contain:
+
+id
+timestamp
+trigger
+type
+severity
+affectedChannels
+affectedInformation
+visibleEffects
+hiddenEffects
+nextEvents
+
+==============================================================
+SCENARIO LIBRARY
+==============================================================
+
+Create at least SIX polished scenarios.
+
+--------------------------------------------------------------
+SCENARIO 01
+--------------------------------------------------------------
+
+TITLE:
+
+"MARIA // COMMUNICATIONS SHOCK"
+
+Historical basis:
+
+Hurricane Maria, Puerto Rico, 2017.
+
+Use the FCC public communications outage reports for environmental
+communication-degradation calibration.
+
+Scenario purpose:
+
+Extreme partial communications collapse and recovery.
+
+Do not recreate actual military operations.
+
+Use a fictional response command environment.
+
+Core injects:
+
+- power instability
+- infrastructure degradation
+- partial cellular outage
+- delayed field reports
+- intermittent connectivity
+- conflicting reports
+- temporary restoration
+- secondary outage
+
+Scenario design:
+
+Begin with healthy communication.
+
+Gradually degrade the primary channel.
+
+Do not immediately show the trainee the real-world percentage.
+
+Instead display:
+
+LINK HEALTH FALLING
+
+Then:
+
+PARTIAL CONNECTIVITY
+
+Then:
+
+SEVERE INFORMATION GAPS
+
+The trainee must adapt information sourcing.
+
+--------------------------------------------------------------
+SCENARIO 02
+--------------------------------------------------------------
+
+TITLE:
+
+"ANATOLIA // PARTIAL RESILIENCE"
+
+Historical basis:
+
+Türkiye/Syria earthquake 2023.
+
+Use ITU/EBU public reporting.
+
+Important:
+
+The historical source indicates that some terrestrial communications and
+FM radio remained operational.
+
+Therefore this scenario MUST NOT depict total communications collapse.
+
+Purpose:
+
+Test whether the trainee can recognise that some channels remain
+reliable while others degrade.
+
+Core mechanic:
+
+Multiple information channels with unequal quality.
+
+Example:
+
+Mobile:
+62%
+
+Terrestrial:
+81%
+
+FM:
+94%
+
+Field reports:
+51%
+
+Fallback:
+75%
+
+The challenge is source evaluation.
+
+--------------------------------------------------------------
+SCENARIO 03
+--------------------------------------------------------------
+
+TITLE:
+
+"CHILE // FALLBACK WINDOW"
+
+Historical basis:
+
+Chile earthquake 2010.
+
+Use ITU public documentation.
+
+Purpose:
+
+Test the value of fallback communication channels after infrastructure
+damage.
+
+Introduce:
+
+PRIMARY
+SECONDARY
+RADIO
+SATELLITE
+FIELD REPORT
+
+Make the trainee manage information flow under degraded primary links.
+
+--------------------------------------------------------------
+SCENARIO 04
+--------------------------------------------------------------
+
+TITLE:
+
+"STORM CORRIDOR"
+
+Use a real historical tropical-cyclone trajectory from NOAA IBTrACS.
+
+Environmental conditions follow the real track.
+
+All command entities are synthetic.
+
+As the storm approaches:
+
+weather severity increases
+visibility decreases
+communication reliability changes
+reports become stale
+infrastructure-risk increases
+
+Create a dynamic weather overlay.
+
+--------------------------------------------------------------
+SCENARIO 05
+--------------------------------------------------------------
+
+TITLE:
+
+"SEISMIC WINDOW"
+
+Use a real historical earthquake event from the USGS catalogue/ShakeMap
+ecosystem.
+
+Use actual event time/magnitude/spatial intensity as the environmental
+basis.
+
+All command entities are synthetic.
+
+Trigger:
+
+earthquake
+infrastructure disruption
+communications fragmentation
+contradictory status updates
+recovery channels
+
+--------------------------------------------------------------
+SCENARIO 06
+--------------------------------------------------------------
+
+TITLE:
+
+"BLACKOUT / INFORMATION FOG"
+
+Fully synthetic benchmark scenario.
+
+Purpose:
+
+Stress-test the trainee with communication degradation independent of
+weather or earthquake.
+
+Sequence:
+
+high latency
+packet loss
+stale information
+conflicting reports
+relay failure
+recovery attempt
+partial restoration
+
+This scenario should be the main live-demo scenario.
+
+==============================================================
+REALISM LAYER
+==============================================================
+
+Create a visible but subtle panel:
+
+HISTORICAL BASIS
+
+Example:
+
+HISTORICAL BASIS
+Hurricane Maria — 2017
+
+DATA BASIS
+FCC communications-status reporting
+
+SIMULATION DATA
+Synthetic command environment
+
+This makes the prototype academically and technically honest.
+
+==============================================================
+INSTRUCTOR CONTROL ROOM
+==============================================================
+
+Create a completely different interface from the trainee console.
+
+Instructor UI should look like a professional exercise-control station.
+
+Left:
+
+SCENARIO CONTROL
+
+Middle:
+
+LIVE TRAINEE VIEW
+
+Right:
+
+EVENT INJECTION
+
+Bottom:
+
+LIVE PERFORMANCE
+
+Controls:
+
+[PAUSE]
+[RESUME]
+[INJECT DELAY]
+[INJECT DROPOUT]
+[INJECT CONTRADICTION]
+[DISABLE FEED]
+[RESTORE FEED]
+[ALTER WEATHER]
+[TRIGGER DECISION WINDOW]
+
+Do not make these controls destructive.
+
+Every inject should be reversible.
+
+==============================================================
+INSTRUCTOR LIVE METRICS
+==============================================================
+
+Show:
+
+Current score
+Decision latency
+Number of decisions
+Information consulted
+Contradiction handling
+Communication adaptation
+Team coordination
+Unresolved uncertainties
+
+Visualise:
+
+decision timeline
+communication quality timeline
+information reliability timeline
+event timeline
+
+Synchronise these charts vertically.
+
+This creates a powerful AAR story.
+
+==============================================================
+MULTIPLAYER
+==============================================================
+
+Implement DEMO MODE multiplayer through simulated roles.
+
+Roles:
+
+COMMANDER
+FIELD TEAM
+OBSERVATION CELL
+COMMUNICATIONS CELL
+ANALYSIS CELL
+
+Each role generates information independently.
+
+Optional real multiplayer:
+
+Supabase Realtime.
+
+However:
+
+DEMO MODE MUST ALWAYS WORK WITHOUT SUPABASE.
+
+The application must never present simulated participants as real people.
+
+Label them:
+
+SIMULATED PARTICIPANT
+
+==============================================================
+SCENARIO BUILDER
+==============================================================
+
+Create a professional scenario builder.
+
+Fields:
+
+Scenario name
+Training objective
+Environment
+Communication baseline
+Communication degradation
+Information density
+Contradiction probability
+Delay
+Dropout probability
+Recovery model
+Decision windows
+Scoring weights
+Historical reference
+
+Provide a timeline editor:
+
+T+00:00
+T+00:15
+T+00:30
+T+01:00
+T+01:45
+T+02:30
+
+Drag injects onto timeline.
+
+Allow:
+
+SAVE SCENARIO
+DUPLICATE
+EXPORT JSON
+IMPORT JSON
+
+==============================================================
+AFTER-ACTION REVIEW
+==============================================================
+
+This page must be excellent.
+
+Header:
+
+AFTER-ACTION REVIEW
+
+SCENARIO: BLACKOUT / INFORMATION FOG
+
+OVERALL SCORE
+
+87 / 100
+
+Then:
+
+DECISION QUALITY
+TIMELINESS
+INFORMATION DISCIPLINE
+COORDINATION
+ADAPTABILITY
+RISK MANAGEMENT
+
+==============================================================
+DECISION TIMELINE
+==============================================================
+
+Display:
+
+EVENT
+↓
+AVAILABLE INFORMATION
+↓
+COMMUNICATION QUALITY
+↓
+TRAINEE DECISION
+↓
+RATIONALE
+↓
+OUTCOME
+
+Example:
+
+10:02:49
+
+CONFLICT DETECTED
+
+Information available:
+4 reports
+
+Reliable:
+2
+
+Uncertain:
+1
+
+Contradictory:
+1
+
+Trainee:
+
+REQUEST VERIFICATION
+
+Rationale:
+
+"Independent confirmation required before adapting the response."
+
+System assessment:
+
+GOOD INFORMATION DISCIPLINE
+
+==============================================================
+DECISION REPLAY
+==============================================================
+
+Allow the instructor to scrub through time.
+
+A horizontal timeline:
+
+───────────────●────────────────
+              YOU ARE HERE
+
+At every point show:
+
+map
+communication state
+available reports
+information confidence
+decision opportunity
+
+This should feel like reviewing a professional simulator replay.
+
+==============================================================
+AAR EXPORT
+==============================================================
+
+Create:
+
+DOWNLOAD AAR
+
+Export to PDF.
+
+Include:
+
+scenario
+training objective
+historical basis
+data sources
+trainee/session ID
+decision timeline
+information state
+communication state
+scores
+strengths
+areas for improvement
+scenario outcome
+
+Include a final disclaimer:
+
+"This report describes performance within a synthetic training simulation.
+It does not represent an operational military assessment."
+
+==============================================================
+DATA PROVENANCE PAGE
+==============================================================
+
+Create a dedicated:
+
+DATA & SOURCES
+
+page.
+
+Every source must show:
+
+name
+organisation
+dataset/report
+date/version if available
+purpose
+licence
+how it is used
+link to source
+
+Separate:
+
+HISTORICAL EVIDENCE
+
+from:
+
+SIMULATION DATA
+
+from:
+
+MAP DATA
+
+from:
+
+OPTIONAL LIVE / EXTERNAL DATA
+
+==============================================================
+DATA PIPELINE
+==============================================================
+
+Create:
+
+/data/raw
+/data/processed
+/data/scenarios
+/data/sources
+
+Do not bundle giant raw files.
+
+Instead:
+
+1. Provide scripts for retrieval.
+2. Store a lightweight processed subset for demo.
+3. Preserve source metadata.
+4. Preserve attribution.
+5. Record download date.
+6. Record source version where available.
+
+Example:
+
+data/sources/manifest.json
+
+{
+  "id": "FCC-MARIA",
+  "name": "FCC Hurricane Maria communications status reports",
+  "provider": "FCC",
+  "type": "historical-report",
+  "usage": "communication degradation calibration",
+  "license": "public government source",
+  "retrieved": "...",
+  "note": "Historical evidence, not military operational data."
+}
+
+==============================================================
+DATA ADAPTERS
+==============================================================
+
+Implement lightweight adapters:
+
+femaAdapter.ts
+usgsAdapter.ts
+noaaStormAdapter.ts
+ibtracsAdapter.ts
+osmAdapter.ts
+fccHistoricalAdapter.ts
+
+The app itself should consume NORMALISED internal objects.
+
+Example:
+
+EnvironmentEvent
+CommunicationState
+GeospatialEvent
+InformationItem
+ScenarioInject
+
+Do not let individual external dataset formats leak into the UI.
+
+==============================================================
+SIMULATION MATHEMATICS
+==============================================================
+
+Make the simulation transparent and deterministic.
+
+Example communication quality:
+
+Q = A * (1 - packetLoss) * latencyFactor * bandwidthFactor
+
+where:
+
+A = channel availability
+
+latencyFactor decreases as latency rises.
+
+Then:
+
+InformationConfidence =
+SourceReliability
+* CommunicationQuality
+* Freshness
+* Consistency
+
+DecisionScore should combine:
+
+decisionQuality
+timeliness
+sourceEvaluation
+coordination
+adaptability
+riskAwareness
+
+Provide comments/documentation explaining these equations.
+
+Do NOT make the system claim that these formulas are doctrinal military
+scoring standards.
+
+They are the simulator's training heuristics.
+
+==============================================================
+AI LAYER
+==============================================================
+
+Do not make AI mandatory for the core simulation.
+
+Core simulation must be deterministic.
+
+Optional AI features:
+
+1. AAR explanation
+2. Natural-language explanation of information conflict
+3. Scenario narrative generation
+4. Instructor summary
+5. Adaptive difficulty recommendation
+
+If using an LLM:
+
+- all API keys server-side
+- never expose credentials in browser
+- never let generated text modify simulation state automatically
+- clearly label generated analysis
+- never use AI to provide real operational military advice
+
+The AI should explain the training exercise, not command real-world action.
+
+==============================================================
+ADAPTIVE DIFFICULTY
+==============================================================
+
+Create three difficulty levels:
+
+FOUNDATION
+ADVANCED
+EXPERT
+
+FOUNDATION:
+less contradiction
+longer decision windows
+higher communication availability
+
+ADVANCED:
+mixed degradation
+contradictory reports
+shorter decision windows
+
+EXPERT:
+multi-channel degradation
+stale reports
+partial recovery
+several simultaneous uncertainties
+dynamic information reliability
+
+Add:
+
+ADAPTIVE MODE
+
+After every run, the system recommends:
+
+Increase challenge
+Maintain level
+Reduce challenge
+
+based on performance.
+
+==============================================================
+IMMERSIVE AUDIO
+==============================================================
+
+Use subtle audio:
+
+startup chime
+radio click
+message received
+warning tone
+degradation pulse
+decision confirmation
+scenario complete
+
+Provide:
+
+AUDIO ON/OFF
+
+No annoying loops.
+
+During severe degradation:
+
+audio itself can become intermittent.
+
+This is an important immersion feature.
+
+==============================================================
+ANIMATION
+==============================================================
+
+Implement high-quality but GPU-friendly animation.
+
+Use:
+
+- animated status pulses
+- map particles
+- moving communication packets
+- event scanlines
+- waveform movement
+- fading message trails
+- dynamic data counters
+- smooth panel transitions
+- tactical timeline animations
+
+Use Framer Motion for UI.
+
+Use requestAnimationFrame / canvas where large numbers of objects are
+being animated.
+
+Do not animate every DOM element.
+
+Target approximately 60 FPS on a normal modern laptop.
+
+==============================================================
+RESPONSIVE DESIGN
+==============================================================
+
+Desktop is the primary target.
+
+Also support:
+
+1440x900
+1920x1080
+1366x768
+tablet widths
+
+For smaller screens:
+
+Collapse:
+
+MAP + FEED + DECISION PANEL
+
+into tabs.
+
+Do not simply scale down desktop UI.
+
+==============================================================
+ACCESSIBILITY
+==============================================================
+
+Support:
+
+keyboard navigation
+visible focus state
+aria labels
+reduced motion
+sufficient text contrast
+non-colour indicators
+readable fonts
+
+Do not rely solely on red/green.
+
+==============================================================
+PERFORMANCE
+==============================================================
+
+Critical requirement.
+
+The landing page should load quickly.
+
+The initial demo scenario should not wait for external datasets.
+
+Use code splitting.
+
+Lazy-load:
+
+MapLibre
+charts
+scenario builder
+PDF generation
+
+The main scenario should work offline after initial application load.
+
+Do not perform giant dataset downloads in the browser.
+
+==============================================================
+OFFLINE DEMO MODE
+==============================================================
+
+VERY IMPORTANT.
+
+Judges must be able to run the simulation without internet after the
+application has loaded.
+
+Ship:
+
+demo-scenario.json
+demo-map.geojson
+demo-events.json
+demo-communications.json
+
+The application must automatically fall back to these.
+
+==============================================================
+DEMO SCRIPT
+==============================================================
+
+Design the application around this exact 3-minute judge demonstration.
+
+STEP 1
+
+Open COMMSHIELD.
+
+Show:
+
+SIMULATION ENGINE READY
+DEGRADATION ENGINE READY
+
+STEP 2
+
+Click:
+
+START LIVE DEMO
+
+STEP 3
+
+Start with:
+
+COMMS 96%
+INFO INTEGRITY 94%
+
+Everything looks calm.
+
+STEP 4
+
+After ~20 seconds:
+
+SYSTEM INJECT:
+
+COMMUNICATION LATENCY RISING
+
+STEP 5
+
+After another ~10 seconds:
+
+FIELD REPORT DELAYED
+
+STEP 6
+
+Then:
+
+CONFLICTING REPORTS DETECTED
+
+STEP 7
+
+Communication health drops visually.
+
+Information cards become:
+
+DELAYED
+STALE
+CONTRADICTED
+
+STEP 8
+
+Show:
+
+DECISION WINDOW OPEN
+
+STEP 9
+
+Judge must choose an action.
+
+STEP 10
+
+The judge enters rationale.
+
+STEP 11
+
+Simulation resolves the event.
+
+STEP 12
+
+Show:
+
+DECISION SCORE
+87 / 100
+
+STEP 13
+
+Immediately transition into:
+
+AFTER-ACTION REVIEW
+
+Show:
+
+"At decision time, only 2 of 5 information channels were high-confidence."
+
+STEP 14
+
+Replay the exact moment.
+
+Then say:
+
+"COMMSHIELD is not training people when information is perfect.
+It is training decision-making when information becomes unreliable."
+
+The interface should make this sequence extremely easy.
+
+==============================================================
+VISUAL BRANDING
+==============================================================
+
+Logo:
+
+Create a simple vector-style shield + signal-wave mark.
+
+Do not use any real military insignia.
+
+Header:
+
+COMMSHIELD
+COMMAND DECISION TRAINER
+
+Status badge:
+
+TRAINING ENVIRONMENT
+
+Footer:
+
+SIH 2026 / SIH26248
+Synthetic training environment
+Public-source historical calibration
+
+==============================================================
+NO GENERIC PLACEHOLDERS
+==============================================================
+
+Do not use:
+
+Lorem ipsum
+dummy dashboard data
+"Coming soon"
+empty charts
+placeholder buttons
+
+Every visible feature must work.
+
+If a complex feature cannot be fully implemented, create a smaller,
+working implementation rather than a fake button.
+
+==============================================================
+TESTING
+==============================================================
+
+Create tests for:
+
+scenario engine
+degradation engine
+information confidence
+decision scoring
+scenario loading
+AAR generation
+
+Test at minimum:
+
+normal state
+single degradation
+multiple simultaneous degradations
+recovery
+contradiction
+stale report
+decision scoring
+scenario reset
+
+==============================================================
+DOCUMENTATION
+==============================================================
+
+README must contain:
+
+1. Project overview
+2. SIH26248 mapping
+3. Architecture
+4. Installation
+5. Deployment
+6. Data sources
+7. Data licensing/attribution
+8. Scenario format
+9. Simulation model
+10. Demo instructions
+11. Offline mode
+12. Optional multiplayer configuration
+
+Also create:
+
+docs/ARCHITECTURE.md
+docs/DATA_SOURCES.md
+docs/SIMULATION_MODEL.md
+docs/SCENARIO_AUTHORING.md
+docs/DEMO_SCRIPT.md
+
+==============================================================
+SIH REQUIREMENT TRACEABILITY
+==============================================================
+
+Create a visible technical matrix mapping:
+
+SIH requirement
+↓
+COMMSHIELD implementation
+↓
+where demonstrated
+
+At minimum:
+
+Scenario engine
+Communication degradation injection
+Incomplete information
+Delayed information
+Contradictory information
+Multi-domain environment
+Team coordination
+Instructor dashboard
+Real-time monitoring
+Decision timeline
+Rationale capture
+AAR
+Export
+Scalable architecture
+
+==============================================================
+FINAL QUALITY BAR
+==============================================================
+
+Before declaring the build complete, verify:
+
+[ ] Application boots
+[ ] No TypeScript errors
+[ ] No build errors
+[ ] Main scenario runs end-to-end
+[ ] Degradation visibly changes information quality
+[ ] Decision window works
+[ ] Rationale is stored
+[ ] Outcome is calculated
+[ ] AAR is generated
+[ ] PDF export works
+[ ] Instructor controls work
+[ ] Scenario reset works
+[ ] Data provenance works
+[ ] Historical source attribution works
+[ ] Application runs without backend
+[ ] Application runs without API keys
+[ ] Application can be deployed to Vercel
+[ ] UI remains fast
+[ ] No military logos or real-world sensitive operational data
+[ ] No unsupported historical claims
+[ ] Every historical-data-derived element identifies its source
+[ ] Synthetic entities are clearly labelled as synthetic
+
+==============================================================
+MOST IMPORTANT DESIGN PRINCIPLE
+==============================================================
+
+Do not optimise for the number of features.
+
+Optimise for this experience:
+
+"Something just went wrong.
+I no longer trust my information.
+I have seconds to decide.
+What do I do?"
+
+That moment must feel exceptionally polished.
+
+The judge should immediately understand the problem, experience the
+problem, make a decision inside the problem, and see measurable
+training feedback.
+
+Build the product around that loop.
+
+==============================================================
+NON-NEGOTIABLE SIGNATURE FEATURES
+==============================================================
+
+The following two features are the defining innovations of COMMSHIELD
+and MUST be implemented as fully functional features, not mockups.
+
+1. INFORMATION CONFIDENCE ENGINE
+
+Every meaningful information item must visibly expose:
+
+- source
+- timestamp
+- age
+- communication channel
+- source reliability
+- channel quality
+- freshness
+- consistency
+- current confidence
+- verification state
+
+The UI must dynamically communicate confidence degradation.
+
+Example:
+
+FIELD REPORT
+SOURCE: FIELD TEAM ALPHA
+AGE: 18.4 SEC
+CHANNEL: DEGRADED RADIO
+
+CONFIDENCE
+██████░░░░ 61%
+
+If a contradiction occurs, confidence must change dynamically.
+
+The trainee must be able to understand WHY information became
+less trustworthy.
+
+Do not merely display a generic "LOW CONFIDENCE" badge.
+
+--------------------------------------------------------------
+
+2. DECISION REPLAY / INFORMATION-STATE RECONSTRUCTION
+
+After every major decision, the instructor must be able to select:
+
+[REPLAY DECISION]
+
+The replay timeline must reconstruct the EXACT INFORMATION STATE
+that existed at the moment the trainee made the decision.
+
+At that timestamp display:
+
+- map state
+- communication state
+- available reports
+- unavailable reports
+- report age
+- confidence values
+- contradictions
+- network status
+- environmental conditions
+- decision options available
+- trainee-selected decision
+- trainee rationale
+
+The instructor must be able to scrub backward and forward through
+the timeline.
+
+Most importantly:
+
+DO NOT reveal information to the trainee during replay that was not
+available to them at the original decision timestamp.
+
+The replay must answer:
+
+"WHAT DID THE TRAINEE KNOW WHEN THEY MADE THE DECISION?"
+
+This is a core training capability, not merely a visual animation.
+
+==============================================================
+FINAL ACCEPTANCE TEST
+==============================================================
+
+A build is NOT considered complete unless a judge can:
+
+1. Start a scenario.
+2. Observe communication degradation.
+3. Observe information confidence change.
+4. Receive conflicting information.
+5. Make a decision.
+6. Enter a rationale.
+7. Receive a measurable score.
+8. Open the AAR.
+9. Click REPLAY DECISION.
+10. Scrub to the exact decision moment.
+11. See exactly what information was available at that moment.
+12. Understand why the simulator evaluated the decision as it did.
+
+These 12 actions constitute the minimum viable end-to-end demonstration
+of SIH26248.
+
+==============================================================
+END MASTER BUILD BRIEF
+==============================================================

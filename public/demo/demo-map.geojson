@@ -1,0 +1,60 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "corridor-alpha",
+        "name": "TACTICAL CORRIDOR ALPHA",
+        "status": "CONTESTED",
+        "description": "Primary transit route connecting NEXUS Command Node to Forward Sector Bravo"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [77.2167, 28.6139],
+          [77.2450, 28.6420],
+          [77.2720, 28.6650]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "corridor-bravo",
+        "name": "SECONDARY CORRIDOR BRAVO (VALLEY)",
+        "status": "OPEN",
+        "description": "Alternative low-elevation transit route via Tactical Relay 02"
+      },
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [77.2167, 28.6139],
+          [77.1850, 28.5850],
+          [77.1620, 28.5620]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "id": "zone-degraded-1",
+        "name": "SECTOR BRAVO DEGRADED RF ZONE",
+        "status": "INTERFERENCE",
+        "severity": 0.82
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [77.2300, 28.6200],
+            [77.2850, 28.6200],
+            [77.2900, 28.6750],
+            [77.2350, 28.6750],
+            [77.2300, 28.6200]
+          ]
+        ]
+      }
+    }
+  ]
+}
