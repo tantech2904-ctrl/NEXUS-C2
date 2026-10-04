@@ -306,8 +306,8 @@ export const JudgeTourModal: React.FC<JudgeTourModalProps> = ({
   const current = steps[currentStep];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 font-mono select-none animate-in fade-in duration-200">
-      <div className="bg-[#141618] border border-[#4fc3d0]/60 max-w-2xl w-full rounded-sm shadow-2xl overflow-hidden flex flex-col">
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4 font-mono select-none animate-in fade-in duration-200 overflow-y-auto">
+      <div className="bg-[#141618] border border-[#4fc3d0]/60 max-w-2xl w-full max-h-[92vh] sm:max-h-[88vh] rounded-sm shadow-2xl overflow-hidden flex flex-col my-auto">
         {/* Top Modal Header */}
         <div className="bg-[#1c1f21] border-b border-[#2a2d30] px-4 py-3 flex items-center justify-between">
           <div className="flex items-center gap-2">

@@ -69,6 +69,8 @@ export default function ConsolePage() {
     setSpeedMultiplier,
     activeDecisionWindow,
     submitDecision,
+    isAutoDemoRunning,
+    setIsAutoDemoRunning,
   } = useSimulationStore();
   const { decisions } = useSessionStore();
 
@@ -77,7 +79,6 @@ export default function ConsolePage() {
   const [isReplayOpen, setIsReplayOpen] = useState(false);
   const [showDemoGuide, setShowDemoGuide] = useState(true);
   const [isTourModalOpen, setIsTourModalOpen] = useState(false);
-  const [isAutoDemoRunning, setIsAutoDemoRunning] = useState(false);
   const [isTourHudMinimized, setIsTourHudMinimized] = useState(false);
   const autoDecisionMadeRef = useRef(false);
 
@@ -177,8 +178,8 @@ export default function ConsolePage() {
   useEffect(() => {
     if (!isAutoDemoRunning) return;
 
-    // At T+70000, auto-submit decision window
-    if (tick >= 68000 && !autoDecisionMadeRef.current) {
+    // At T+82500, auto-submit decision window (after live typing completes)
+    if (tick >= 82500 && !autoDecisionMadeRef.current) {
       autoDecisionMadeRef.current = true;
       submitDecision(
         'SWITCH_INFORMATION_CHANNEL',
@@ -624,7 +625,7 @@ export default function ConsolePage() {
 
         {/* Live Evaluation Tour HUD Overlay (Runs at bottom-left so the right Decision Center is completely unblocked!) */}
         {isAutoDemoRunning && activeTab === 'CONSOLE' && (
-          <div className="absolute bottom-3 left-3 sm:left-4 z-30 max-w-sm sm:max-w-md w-full pointer-events-auto print:hidden">
+          <div className="absolute bottom-3 left-3 right-3 sm:right-auto sm:left-4 z-30 w-[calc(100%-24px)] sm:w-auto max-w-sm sm:max-w-md pointer-events-auto print:hidden max-h-[calc(100%-24px)] overflow-y-auto">
             <div className="bg-[#141618]/95 backdrop-blur-md border border-[#4fc3d0]/60 rounded-md shadow-2xl p-3 sm:p-4 text-xs font-mono space-y-2.5 animate-fadeIn">
               {/* HUD Header */}
               <div className="flex items-center justify-between border-b border-[#2a2d30] pb-2">

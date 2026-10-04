@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSimulationStore } from '@/stores/simulationStore';
 import { useSessionStore } from '@/stores/sessionStore';
 import { DecisionAction } from '@/types/decision';
@@ -21,13 +21,32 @@ const DECISION_ACTIONS: Array<{ action: DecisionAction; label: string; desc: str
 ];
 
 export const DecisionPanel: React.FC = () => {
-  const { activeDecisionWindow, submitDecision } = useSimulationStore();
+  const { activeDecisionWindow, submitDecision, isAutoDemoRunning, tick } = useSimulationStore();
   const { decisions } = useSessionStore();
 
   const [selectedAction, setSelectedAction] = useState<DecisionAction | null>(null);
   const [rationale, setRationale] = useState('');
   const [filterCategory, setFilterCategory] = useState<'ALL' | 'EVALUATE' | 'COMM' | 'TACTICAL'>('ALL');
   const [hasSubmitted, setHasSubmitted] = useState(false);
+
+  // Synchronize live typing and action selection during 3-min judge auto-demo
+  useEffect(() => {
+    if (!isAutoDemoRunning || !activeDecisionWindow) return;
+
+    if (tick >= 69000 && !selectedAction) {
+      setSelectedAction('SWITCH_INFORMATION_CHANNEL');
+    }
+
+    if (tick >= 72000) {
+      const fullText =
+        'Switching forward units to fallback satellite net due to 42% packet loss and conflicting drone observations on corridor Alpha-7.';
+      const progress = Math.min(
+        fullText.length,
+        Math.floor(((tick - 72000) / 7500) * fullText.length)
+      );
+      setRationale(fullText.substring(0, progress));
+    }
+  }, [isAutoDemoRunning, activeDecisionWindow, tick, selectedAction]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
