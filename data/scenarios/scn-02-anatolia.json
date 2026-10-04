@@ -2,7 +2,7 @@
   "id": "SCN-02",
   "version": "1.0.0",
   "title": "ANATOLIA // PARTIAL RESILIENCE",
-  "historicalBasis": "Türkiye/Syria Earthquake Disaster, February 2023. Calibrated using ITU/EBU Crisis Communications Report 'Radio in times of crisis'.",
+  "historicalBasis": "Türkiye/Syria Earthquake Disaster, February 2023. Calibrated using ITU/EBU Crisis Communications Report 'Radio in times of crisis' (cellular infrastructure knocked offline while emergency terrestrial FM radio survived).",
   "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
   "difficulty": "ADVANCED",
   "seed": 202,
@@ -11,13 +11,13 @@
   "environment": {
     "type": "SEISMIC_SHOCK",
     "severity": 0.88,
-    "weatherDescription": "Severe winter conditions combined with massive structural collapse of cellular fiber interconnects.",
-    "visibilityKm": 6.0
+    "weatherDescription": "Magnitude 7.8 seismic strike in sub-zero winter; cellular towers collapsed from structural pancaking; emergency FM broadcast transmitters operating on generator power.",
+    "visibilityKm": 4.5
   },
   "entities": [
     {
-      "id": "node-cmd",
-      "name": "REGIONAL CRISIS DESK (ADANA SECTOR)",
+      "id": "node-cmd-adana",
+      "name": "REGIONAL CRISIS DESK (ADANA AIRBASE)",
       "type": "COMMAND_NODE",
       "coordinates": [35.3213, 37.0000],
       "status": "NOMINAL",
@@ -26,8 +26,18 @@
       "lastContactTick": 0
     },
     {
-      "id": "team-antakya",
-      "name": "FORWARD RESCUE UNIT ANTAKYA",
+      "id": "node-relay-habib",
+      "name": "MOUNT HABIB NECCAR FM RELAY TOWER",
+      "type": "RELAY_NODE",
+      "coordinates": [36.1750, 36.2100],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-fm",
+      "health": 0.95,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-sar-falcon",
+      "name": "FORWARD RESCUE UNIT FALCON (ANTAKYA)",
       "type": "FIELD_TEAM",
       "coordinates": [36.1600, 36.2000],
       "status": "NOMINAL",
@@ -36,13 +46,23 @@
       "lastContactTick": 0
     },
     {
-      "id": "node-fm",
-      "name": "PUBLIC EMERGENCY FM RELAY",
-      "type": "RELAY_NODE",
-      "coordinates": [35.8000, 36.5000],
+      "id": "team-hospital-alpha",
+      "name": "FIELD HOSPITAL CELL (ISKENDERUN)",
+      "type": "FIELD_TEAM",
+      "coordinates": [36.1800, 36.5800],
       "status": "NOMINAL",
-      "activeChannelId": "ch-fm",
-      "health": 0.96,
+      "activeChannelId": "ch-mobile",
+      "health": 0.85,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-drone-hatay",
+      "name": "CIVIL DEFENSE UAV (HATAY CORRIDOR)",
+      "type": "OBSERVATION_NODE",
+      "coordinates": [36.2200, 36.3500],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-terrestrial",
+      "health": 0.90,
       "lastContactTick": 0
     }
   ],
@@ -51,11 +71,11 @@
       "id": "ch-mobile",
       "name": "COMMERCIAL MOBILE TELCO NETWORK",
       "type": "PRIMARY",
-      "availability": 0.62,
-      "packetLoss": 0.32,
-      "latencyMs": 850,
-      "bandwidthFactor": 0.50,
-      "channelQuality": 0.48,
+      "availability": 0.58,
+      "packetLoss": 0.35,
+      "latencyMs": 950,
+      "bandwidthFactor": 0.45,
+      "channelQuality": 0.42,
       "status": "DEGRADED",
       "lastSuccessfulContactTick": 0
     },
@@ -63,76 +83,121 @@
       "id": "ch-terrestrial",
       "name": "GOVERNMENT TERRESTRIAL LAND MOBILE RADIO",
       "type": "RADIO",
-      "availability": 0.82,
-      "packetLoss": 0.08,
-      "latencyMs": 120,
-      "bandwidthFactor": 0.85,
-      "channelQuality": 0.79,
+      "availability": 0.84,
+      "packetLoss": 0.06,
+      "latencyMs": 110,
+      "bandwidthFactor": 0.88,
+      "channelQuality": 0.81,
       "status": "NORMAL",
       "lastSuccessfulContactTick": 0
     },
     {
       "id": "ch-fm",
-      "name": "EMERGENCY BROADCAST FM AUDIO CARRIER",
+      "name": "EMERGENCY BROADCAST FM CARRIER",
       "type": "FALLBACK",
-      "availability": 0.94,
+      "availability": 0.96,
       "packetLoss": 0.01,
-      "latencyMs": 40,
+      "latencyMs": 35,
       "bandwidthFactor": 0.98,
-      "channelQuality": 0.93,
+      "channelQuality": 0.95,
       "status": "NORMAL",
       "lastSuccessfulContactTick": 0
     }
   ],
   "initialConditions": {
     "commHealth": 0.73,
-    "infoIntegrity": 0.75,
+    "infoIntegrity": 0.76,
     "initialDegradationState": "PARTIAL_DROPOUT"
   },
   "events": [
     {
       "id": "a-ev-01",
-      "time": 12000,
+      "time": 8000,
       "type": "REPORT_INCOMING",
-      "target": "ch-mobile",
-      "message": "Mobile SMS feed from volunteer group: Hospital generators running out of fuel.",
+      "target": "ch-terrestrial",
+      "message": "Rescue Unit Falcon reports on-scene in Antakya: debris clearing underway.",
       "payload": {
         "id": "a-rep-01",
-        "sourceName": "VOLUNTEER SMS FEED",
+        "sourceName": "RESCUE UNIT FALCON",
         "sourceType": "FIELD_REPORT",
-        "channelId": "ch-mobile",
-        "content": "Hospital Generator: FUEL CRITICAL. Oxygen failure imminent in 20 minutes.",
-        "sourceReliability": 0.55,
-        "freshness": 0.9,
-        "consistency": 1.0
+        "channelId": "ch-terrestrial",
+        "content": "Sector Antakya Old City: Ground transit compromised by rubble, but pedestrian SAR active.",
+        "sourceReliability": 0.92,
+        "freshness": 1.0,
+        "consistency": 1.0,
+        "location": { "lat": 36.2000, "lng": 36.1600 }
       }
     },
     {
       "id": "a-ev-02",
-      "time": 28000,
+      "time": 18000,
       "type": "REPORT_INCOMING",
-      "target": "ch-fm",
-      "message": "Civil Defense FM Broadcast: Antakya Central Hospital refueled 15 minutes ago via military fuel tanker.",
+      "target": "ch-mobile",
+      "message": "Unverified Volunteer SMS: Iskenderun Hospital generator critically low on diesel fuel!",
       "payload": {
         "id": "a-rep-02",
-        "sourceName": "CIVIL DEFENSE FM",
+        "sourceName": "VOLUNTEER SMS FEED",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-mobile",
+        "content": "URGENT: Iskenderun Hospital generator fuel at 4%! Life support oxygen failure imminent in 20 min!",
+        "sourceReliability": 0.52,
+        "freshness": 0.95,
+        "consistency": 1.0,
+        "location": { "lat": 36.5800, "lng": 36.1800 }
+      }
+    },
+    {
+      "id": "a-ev-03",
+      "time": 28000,
+      "type": "DROPOUT",
+      "target": "ch-mobile",
+      "severity": 0.85,
+      "message": "ITU CRITICAL ALERT: Backhaul fiber severed between Adana and Antakya; commercial mobile network blacked out."
+    },
+    {
+      "id": "a-ev-04",
+      "time": 42000,
+      "type": "CONTRADICTION",
+      "target": "ch-fm",
+      "severity": 0.8,
+      "message": "CONTRADICTION DETECTED: Emergency FM Broadcast reports hospital fuel tanks replenished 25 min ago!",
+      "payload": {
+        "id": "a-rep-03",
+        "sourceName": "CIVIL DEFENSE FM BROADCAST",
         "sourceType": "OBSERVATION",
         "channelId": "ch-fm",
-        "content": "Hospital refueled at 11:45. Fuel reserves stable for 72 hours. Medical oxygen operational.",
-        "sourceReliability": 0.94,
+        "content": "OFFICIAL VERIFICATION: Iskenderun Hospital refueled by military convoy at 09:15. Fuel reserves stable for 72h.",
+        "sourceReliability": 0.95,
         "freshness": 1.0,
         "consistency": 0.5,
-        "contradictionGroupId": "cg-anatolia-fuel"
+        "contradictionGroupId": "cg-anatolia-fuel",
+        "location": { "lat": 36.5850, "lng": 36.1820 }
       }
+    },
+    {
+      "id": "a-ev-05",
+      "time": 55000,
+      "type": "LATENCY",
+      "target": "ch-terrestrial",
+      "severity": 0.45,
+      "message": "High frequency channel congestion on Land Mobile Radio as military search teams multiply."
+    },
+    {
+      "id": "a-ev-06",
+      "time": 105000,
+      "type": "RECOVERY",
+      "target": "ch-terrestrial",
+      "severity": 0.2,
+      "message": "Auxiliary channel band cleared for prioritized search & rescue coordination."
     }
   ],
   "decisionWindows": [
     {
       "id": "a-dw-01",
-      "openAtTick": 45000,
-      "durationMs": 30000,
+      "openAtTick": 50000,
+      "durationMs": 35000,
       "urgency": "MODERATE",
-      "situation": "SMS mobile network reports hospital emergency fuel crisis, but high-reliability FM Broadcast reports tanks full. Fuel delivery convoy awaiting dispatch orders.",
+      "situation": "SMS mobile network reports critical oxygen failure at Iskenderun Hospital, but verified FM radio broadcast confirms diesel was delivered. A dedicated fuel transport convoy is awaiting emergency dispatch orders.",
       "recommendedActions": ["VERIFY", "ASSESS", "STAND_BY", "SWITCH_INFORMATION_CHANNEL"]
     }
   ],
@@ -149,9 +214,9 @@
   "sources": [
     {
       "name": "ITU / EBU Crisis Communications Report — Türkiye 2023",
-      "organization": "ITU / European Broadcasting Union",
+      "organization": "International Telecommunication Union / European Broadcasting Union",
       "url": "https://www.itu.int/en/ITU-D/Emergency-Telecommunications/Documents/2024/EBU-MIS_Radio_in_times_of_crisis.pdf",
-      "usage": "Demonstrates heterogeneous channel resilience and source evaluation during disaster"
+      "usage": "Calibrates heterogeneous channel survival and source evaluation during disaster"
     }
   ]
 }

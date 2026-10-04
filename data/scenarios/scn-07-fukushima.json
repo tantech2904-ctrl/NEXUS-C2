@@ -1,0 +1,260 @@
+{
+  "id": "SCN-07",
+  "version": "1.0.0",
+  "title": "FUKUSHIMA // CASCADING BLACKOUT",
+  "historicalBasis": "Great East Japan Earthquake & Tsunami, March 2011. Calibrated with ITU Emergency Telecommunications & TEPCO/IAEA technical inquiry reports. Mw 9.1 megathrust seismic shock severing off-site grid power, tsunami wave overtopping seawall flooding emergency diesel generators, complete SCADA optical backhaul failure, and contradictory radiation dosage reports.",
+  "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
+  "difficulty": "EXPERT",
+  "seed": 707,
+  "durationMs": 180000,
+  "stalenessThresholdSeconds": 30,
+  "environment": {
+    "type": "INFRASTRUCTURE_BLACKOUT",
+    "severity": 0.96,
+    "weatherDescription": "Offshore seismic tsunami landfall; complete station blackout, submerged electrical switchgear, high electromagnetic interference.",
+    "visibilityKm": 4.0
+  },
+  "entities": [
+    {
+      "id": "node-cmd-fukushima",
+      "name": "DISASTER OPERATIONS CENTER (DAIICHI HQ)",
+      "type": "COMMAND_NODE",
+      "coordinates": [141.0320, 37.4210],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 1.0,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-relay-ridge",
+      "name": "COASTAL RELAY MAST (FUKUSHIMA HIGH)",
+      "type": "RELAY_NODE",
+      "coordinates": [140.9900, 37.4400],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.92,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-rad-recon",
+      "name": "RADIATION SURVEY TEAM KILO",
+      "type": "FIELD_TEAM",
+      "coordinates": [141.0180, 37.4520],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.95,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-seawall-obs",
+      "name": "OUTER SEAWALL SENSOR TELEMETRY BUOY",
+      "type": "OBSERVATION_NODE",
+      "coordinates": [141.0410, 37.4330],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.98,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-power-convoy",
+      "name": "MOBILE GENERATOR CONVOY OMEGA",
+      "type": "FIELD_TEAM",
+      "coordinates": [140.9700, 37.3850],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-secondary",
+      "health": 0.90,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-triage-center",
+      "name": "REGIONAL EMERGENCY MEDICAL CENTER",
+      "type": "SUPPORT_NODE",
+      "coordinates": [140.9200, 37.4100],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-fallback",
+      "health": 1.0,
+      "lastContactTick": 0
+    }
+  ],
+  "communicationChannels": [
+    {
+      "id": "ch-primary",
+      "name": "SCADA INDUSTRIAL OPTICAL FIBER RING",
+      "type": "PRIMARY",
+      "availability": 0.98,
+      "packetLoss": 0.01,
+      "latencyMs": 35,
+      "bandwidthFactor": 0.99,
+      "channelQuality": 0.97,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-secondary",
+      "name": "VHF DISASTER RESCUE RADIO NET",
+      "type": "SECONDARY",
+      "availability": 0.88,
+      "packetLoss": 0.09,
+      "latencyMs": 190,
+      "bandwidthFactor": 0.78,
+      "channelQuality": 0.82,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-fallback",
+      "name": "SATELLITE EMERGENCY VOICE TERMINAL",
+      "type": "FALLBACK",
+      "availability": 0.90,
+      "packetLoss": 0.07,
+      "latencyMs": 680,
+      "bandwidthFactor": 0.65,
+      "channelQuality": 0.72,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    }
+  ],
+  "initialConditions": {
+    "commHealth": 0.96,
+    "infoIntegrity": 0.95,
+    "initialDegradationState": "NORMAL"
+  },
+  "events": [
+    {
+      "id": "fuk-ev-01",
+      "time": 7000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-primary",
+      "message": "Routine baseline status: SCADA optical telemetry registering stable diesel generator battery buffers.",
+      "payload": {
+        "id": "fuk-rep-00",
+        "sourceName": "SCADA OPERATIONS CONSOLE",
+        "sourceType": "SENSOR",
+        "channelId": "ch-primary",
+        "content": "Emergency diesel backup generators running nominally. Reactor core coolant loop flow 100%.",
+        "sourceReliability": 0.96,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "id": "fuk-ev-02",
+      "time": 18000,
+      "type": "DROPOUT",
+      "target": "ch-primary",
+      "severity": 1.0,
+      "message": "TSUNAMI SEAWALL OVERTOPPING: 14-meter ocean surge floods subterranean generator basements. Complete optical SCADA severance."
+    },
+    {
+      "id": "fuk-ev-03",
+      "time": 30000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-secondary",
+      "message": "Radiation Survey Team Kilo transmits dosimeter survey over VHF net.",
+      "payload": {
+        "id": "fuk-rep-01",
+        "sourceName": "RADIATION SURVEY TEAM KILO",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-secondary",
+        "content": "FIELD SURVEY ALERT: Unit 1 reactor turbine building exterior dose rate rising to 82 microSieverts/hour. Containment pressure venting imminent.",
+        "sourceReliability": 0.93,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "id": "fuk-ev-04",
+      "time": 42000,
+      "type": "CONTRADICTION",
+      "target": "ch-secondary",
+      "severity": 0.85,
+      "message": "CRITICAL CONTRADICTION: Flooded automated monitoring station transmits frozen nominal reading, conflicting with survey team.",
+      "payload": {
+        "id": "fuk-rep-02",
+        "sourceName": "STATIC BOUNDARY DOSIMETER 4",
+        "sourceType": "SENSOR",
+        "channelId": "ch-secondary",
+        "content": "STALE SENSOR: Boundary Dosimeter reports nominal background 0.04 microSieverts/hr (sensor logic frozen on pre-flood memory buffer).",
+        "sourceReliability": 0.32,
+        "freshness": 0.35,
+        "consistency": 0.20
+      }
+    },
+    {
+      "id": "fuk-ev-05",
+      "time": 54000,
+      "type": "BANDWIDTH_CONGESTION",
+      "target": "ch-secondary",
+      "severity": 0.80,
+      "message": "EMERGENCY RADIO SATURATION: VHF channel overwhelmed by civilian distress broadcasts. Packet loss reaches 45%."
+    },
+    {
+      "id": "fuk-ev-06",
+      "time": 70000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "Mobile Generator Convoy Omega establishes satellite voice link.",
+      "payload": {
+        "id": "fuk-rep-03",
+        "sourceName": "MOBILE GENERATOR CONVOY OMEGA",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-fallback",
+        "content": "Convoy Omega staging 3.5 km southwest: Inundated coastal highway impassable for heavy generator trucks. Detour via high-elevation inland pass required.",
+        "sourceReliability": 0.95,
+        "freshness": 1.0,
+        "consistency": 0.96
+      }
+    },
+    {
+      "id": "fuk-ev-07",
+      "time": 95000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "Regional Emergency Medical Center coordinates iodine distribution.",
+      "payload": {
+        "id": "fuk-rep-04",
+        "sourceName": "REGIONAL EMERGENCY MEDICAL CENTER",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-fallback",
+        "content": "Medical Center ready to receive evacuees. Requesting confirmation of evacuation corridor along inland high ridge away from radioactive plume.",
+        "sourceReliability": 0.92,
+        "freshness": 1.0,
+        "consistency": 0.95
+      }
+    }
+  ],
+  "decisionWindows": [
+    {
+      "id": "fuk-dw-01",
+      "openAtTick": 48000,
+      "durationMs": 35000,
+      "urgency": "CRITICAL",
+      "situation": "Primary SCADA optical network is dead after generator flood. A frozen sensor reports normal radiation while Survey Team Kilo detects dangerously escalating dosage. VHF radio is congesting and Convoy Omega cannot cross flooded roads. You must evaluate sensor vs field veracity, transition dispatch to Satellite Fallback, and reroute generator convoys via the inland ridge pass.",
+      "recommendedActions": ["SWITCH_INFORMATION_CHANNEL", "ADAPT_PLAN", "VERIFY"]
+    }
+  ],
+  "scoringWeights": {
+    "decisionQuality": 0.30,
+    "timeliness": 0.15,
+    "informationDiscipline": 0.15,
+    "sourceEvaluation": 0.15,
+    "communicationResilience": 0.15,
+    "coordination": 0.05,
+    "riskManagement": 0.025,
+    "adaptability": 0.025
+  },
+  "sources": [
+    {
+      "name": "ITU Emergency Telecommunications in Disaster Response — Japan 2011",
+      "organization": "International Telecommunication Union",
+      "url": "https://www.itu.int/en/ITU-D/Emergency-Telecommunications/Pages/ITUDisasterResponse.aspx",
+      "usage": "Calibrates total station blackout, SCADA optical fiber severance, and satellite voice fallback resilience"
+    },
+    {
+      "name": "IAEA Technical Report on the Fukushima Daiichi Nuclear Accident",
+      "organization": "International Atomic Energy Agency",
+      "url": "https://www.iaea.org/publications/10962/the-fukushima-daiichi-accident",
+      "usage": "Calibrates conflicting radiation sensor buffers, battery depletion timelines, and heavy generator transport obstacles"
+    }
+  ]
+}

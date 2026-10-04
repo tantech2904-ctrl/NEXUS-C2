@@ -1,0 +1,260 @@
+{
+  "id": "SCN-09",
+  "version": "1.0.0",
+  "title": "CYBER SPOOF // TELEMETRY FOG",
+  "historicalBasis": "Hybrid Threat & Critical Infrastructure Incident Telemetry (calibrated using public CISA Industrial Control Systems Advisories & ENISA Cyber Threat Landscape reports). Coordinated packet flood, telemetry timestamp spoofing, and poisoned automated SCADA status dashboards conflicting with verified on-ground scout intelligence.",
+  "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
+  "difficulty": "EXPERT",
+  "seed": 909,
+  "durationMs": 180000,
+  "stalenessThresholdSeconds": 28,
+  "environment": {
+    "type": "INFRASTRUCTURE_BLACKOUT",
+    "severity": 0.88,
+    "weatherDescription": "Coordinated cyber-physical grid interference; asynchronous packet jitter, compromised digital telemetry dashboards, urban infrastructure spoofing.",
+    "visibilityKm": 5.0
+  },
+  "entities": [
+    {
+      "id": "node-cmd-urban",
+      "name": "INTEGRATED URBAN COMMAND CELL",
+      "type": "COMMAND_NODE",
+      "coordinates": [77.2100, 28.6250],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 1.0,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-substation-guard",
+      "name": "CRITICAL POWER SUBSTATION 04",
+      "type": "SUPPORT_NODE",
+      "coordinates": [77.2600, 28.6550],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.95,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-scout-echo",
+      "name": "MOBILE SCOUT DETACHMENT ECHO",
+      "type": "FIELD_TEAM",
+      "coordinates": [77.2850, 28.6400],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.92,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-cirt-cell",
+      "name": "CYBER INCIDENT RESPONSE CELL",
+      "type": "OBSERVATION_NODE",
+      "coordinates": [77.1900, 28.6100],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-secondary",
+      "health": 0.98,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-hospital-hub",
+      "name": "DISTRICT EMERGENCY TRAUMA CENTER",
+      "type": "SUPPORT_NODE",
+      "coordinates": [77.2350, 28.5950],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-fallback",
+      "health": 1.0,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-relay-van",
+      "name": "MOBILE AUXILIARY RELAY VAN 02",
+      "type": "RELAY_NODE",
+      "coordinates": [77.2500, 28.6200],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-secondary",
+      "health": 0.94,
+      "lastContactTick": 0
+    }
+  ],
+  "communicationChannels": [
+    {
+      "id": "ch-primary",
+      "name": "ENCRYPTED METRO FIBER LOOP",
+      "type": "PRIMARY",
+      "availability": 0.95,
+      "packetLoss": 0.02,
+      "latencyMs": 40,
+      "bandwidthFactor": 0.96,
+      "channelQuality": 0.92,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-secondary",
+      "name": "TACTICAL LTE-M PRIVATE NETWORK",
+      "type": "SECONDARY",
+      "availability": 0.88,
+      "packetLoss": 0.08,
+      "latencyMs": 180,
+      "bandwidthFactor": 0.80,
+      "channelQuality": 0.82,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-fallback",
+      "name": "ANALOG VHF VOICE TACTICAL NET",
+      "type": "FALLBACK",
+      "availability": 0.94,
+      "packetLoss": 0.03,
+      "latencyMs": 95,
+      "bandwidthFactor": 0.65,
+      "channelQuality": 0.86,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    }
+  ],
+  "initialConditions": {
+    "commHealth": 0.94,
+    "infoIntegrity": 0.92,
+    "initialDegradationState": "NORMAL"
+  },
+  "events": [
+    {
+      "id": "cyb-ev-01",
+      "time": 7000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-primary",
+      "message": "Routine grid baseline: Substation 04 telemetry shows nominal 220kV voltage transmission.",
+      "payload": {
+        "id": "cyb-rep-00",
+        "sourceName": "METRO SCADA SUPERVISOR",
+        "sourceType": "SENSOR",
+        "channelId": "ch-primary",
+        "content": "All municipal power feeders balanced. Substation transformer temps normal (42°C).",
+        "sourceReliability": 0.95,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "id": "cyb-ev-02",
+      "time": 18000,
+      "type": "BANDWIDTH_CONGESTION",
+      "target": "ch-primary",
+      "severity": 0.85,
+      "message": "DDOS PACKET FLOOD: Volumetric broadcast storm inundates metro fiber switches. Telemetry latency surges to 980ms."
+    },
+    {
+      "id": "cyb-ev-03",
+      "time": 28000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-secondary",
+      "message": "Cyber Response Cell alerts Command: Telemetry data poisoning detected on primary fiber loop.",
+      "payload": {
+        "id": "cyb-rep-01",
+        "sourceName": "CYBER INCIDENT RESPONSE CELL",
+        "sourceType": "OBSERVATION",
+        "channelId": "ch-secondary",
+        "content": "CYBER INTRUSION DETECTED: Supervisory control packets contain manipulated timestamps and fabricated sensor values. Primary digital dashboard is compromised.",
+        "sourceReliability": 0.94,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "id": "cyb-ev-04",
+      "time": 40000,
+      "type": "CONTRADICTION",
+      "target": "ch-primary",
+      "severity": 0.90,
+      "message": "CRITICAL CONTRADICTION: Spoofed digital dashboard shows Substation 04 normal, while Scout Echo reports sabotage explosion.",
+      "payload": {
+        "id": "cyb-rep-02",
+        "sourceName": "COMPROMISED SCADA TELEMETRY",
+        "sourceType": "SENSOR",
+        "channelId": "ch-primary",
+        "content": "SPOOFED TELEMETRY: Substation 04 registers 100% operational with green breakers (spoofed replay feed injected by attacker).",
+        "sourceReliability": 0.28,
+        "freshness": 0.30,
+        "consistency": 0.15
+      }
+    },
+    {
+      "id": "cyb-ev-05",
+      "time": 46000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "Scout Detachment Echo transmits verified visual over analog VHF voice net.",
+      "payload": {
+        "id": "cyb-rep-03",
+        "sourceName": "MOBILE SCOUT DETACHMENT ECHO",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-fallback",
+        "content": "EYEWITNESS REPORT: Substation 04 transformer bay is in flames. Dense black smoke rising. Main breaker tripped. District Trauma Center has switched to emergency generators.",
+        "sourceReliability": 0.96,
+        "freshness": 1.0,
+        "consistency": 0.98
+      }
+    },
+    {
+      "id": "cyb-ev-06",
+      "time": 58000,
+      "type": "DROPOUT",
+      "target": "ch-primary",
+      "severity": 0.95,
+      "message": "CIRCUIT BREAKER LOCKOUT: Physical explosion cuts subterranean fiber lines. Primary digital link severed."
+    },
+    {
+      "id": "cyb-ev-07",
+      "time": 78000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "District Emergency Trauma Center requests fuel resupply for generators.",
+      "payload": {
+        "id": "cyb-rep-04",
+        "sourceName": "DISTRICT EMERGENCY TRAUMA CENTER",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-fallback",
+        "content": "Trauma Center ICU on diesel generators: 6 hours fuel remaining. Requesting armed fuel escort routed via analog radio dispatch.",
+        "sourceReliability": 0.95,
+        "freshness": 1.0,
+        "consistency": 0.98
+      }
+    }
+  ],
+  "decisionWindows": [
+    {
+      "id": "cyb-dw-01",
+      "openAtTick": 50000,
+      "durationMs": 35000,
+      "urgency": "CRITICAL",
+      "situation": "Primary digital telemetry dashboard is displaying falsified normal status due to cyber spoofing, while Scout Echo on-site visually reports Substation 04 is in flames. Primary fiber is congesting and about to fail. Trainee must reject the compromised digital dashboard, switch command net to analog VHF voice, and dispatch emergency fuel escorts to District Trauma Center.",
+      "recommendedActions": ["SWITCH_INFORMATION_CHANNEL", "VERIFY", "ADAPT_PLAN"]
+    }
+  ],
+  "scoringWeights": {
+    "decisionQuality": 0.30,
+    "timeliness": 0.15,
+    "informationDiscipline": 0.20,
+    "sourceEvaluation": 0.15,
+    "communicationResilience": 0.10,
+    "coordination": 0.05,
+    "riskManagement": 0.025,
+    "adaptability": 0.025
+  },
+  "sources": [
+    {
+      "name": "CISA Industrial Control Systems Cyber Disruption Advisories",
+      "organization": "Cybersecurity and Infrastructure Security Agency",
+      "url": "https://www.cisa.gov/ics",
+      "usage": "Calibrates SCADA telemetry spoofing, replay packet injection, and false dashboard indicator patterns"
+    },
+    {
+      "name": "ENISA Threat Landscape for Critical Infrastructure & Energy Sectors",
+      "organization": "European Union Agency for Cybersecurity",
+      "url": "https://www.enisa.europa.eu/",
+      "usage": "Calibrates volumetric packet flooding and secondary analog communication resilience during cyber-physical events"
+    }
+  ]
+}

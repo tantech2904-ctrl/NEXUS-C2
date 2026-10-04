@@ -1,0 +1,23 @@
+{
+  "dataset": "NEXUS-C2 Synthetic Tactical Topographic Model",
+  "version": "1.0.0",
+  "specification": "USGS 1:50,000 Topographic Standards / NATO STANAG 2211 Cartographic Grid",
+  "disclaimer": "MAP DATA: SYNTHETIC TRAINING TERRAIN. Generated for NEXUS-C2 offline command demonstration.",
+  "contourIntervals": {
+    "minorMeters": 25,
+    "majorIndexMeters": 100
+  },
+  "illumination": {
+    "azimuthDegrees": 315,
+    "altitudeDegrees": 45,
+    "shadingMethod": "Analytical Surface Normal Dot-Product (USGS Standard)"
+  },
+  "datum": "WGS 84 / Universal Transverse Mercator (UTM)",
+  "offlineReady": true,
+  "externalRequests": false,
+  "sources": [
+    "USGS National Map Technical Instructions for Topographic Maps",
+    "NATO STANAG 2211 Military Geographic Information and Documentation"
+  ]
+}
+

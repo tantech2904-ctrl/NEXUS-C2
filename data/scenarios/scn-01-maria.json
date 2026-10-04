@@ -2,22 +2,22 @@
   "id": "SCN-01",
   "version": "1.0.0",
   "title": "MARIA // COMMUNICATIONS SHOCK",
-  "historicalBasis": "Hurricane Maria, Puerto Rico, September 2017. Calibrated using FCC Public Communications Status Reports DOC-348851A1 and DOC-353805A1.",
+  "historicalBasis": "Hurricane Maria, Puerto Rico, September 2017. Calibrated using FCC Public Communications Status Reports DOC-348851A1 and DOC-353805A1 (95.2% cell site outage, submerged fiber backhaul).",
   "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
   "difficulty": "ADVANCED",
   "seed": 101,
   "durationMs": 180000,
-  "stalenessThresholdSeconds": 30,
+  "stalenessThresholdSeconds": 32,
   "environment": {
     "type": "SEVERE_WEATHER",
-    "severity": 0.92,
-    "weatherDescription": "Category 4 tropical cyclone landfall causing massive infrastructure and wireline backhaul collapse.",
-    "visibilityKm": 2.0
+    "severity": 0.94,
+    "weatherDescription": "Category 4 hurricane landfall (155 mph sustained winds); flash floods and mountain landslides destroying terrestrial fiber backhaul.",
+    "visibilityKm": 1.8
   },
   "entities": [
     {
-      "id": "node-cmd",
-      "name": "DISASTER RESPONSE COMMAND (METRO)",
+      "id": "node-cmd-sanjuan",
+      "name": "METRO JOINT OPERATIONS HQ (SAN JUAN)",
       "type": "COMMAND_NODE",
       "coordinates": [-66.1057, 18.4655],
       "status": "NOMINAL",
@@ -26,18 +26,28 @@
       "lastContactTick": 0
     },
     {
-      "id": "node-relay-1",
-      "name": "MOUNTAIN TELECOM TOWER (EL YUNQUE)",
+      "id": "node-relay-yunque",
+      "name": "EL YUNQUE HIGH-RIDGE MICROWAVE RELAY",
       "type": "RELAY_NODE",
       "coordinates": [-65.7950, 18.3150],
       "status": "NOMINAL",
       "activeChannelId": "ch-cellular",
-      "health": 0.85,
+      "health": 0.88,
       "lastContactTick": 0
     },
     {
-      "id": "team-sar-1",
-      "name": "SEARCH & RESCUE UNIT ECHO",
+      "id": "node-relay-maravilla",
+      "name": "CERRO MARAVILLA CENTRAL REPEATER",
+      "type": "RELAY_NODE",
+      "coordinates": [-66.5500, 18.1500],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-radio",
+      "health": 0.92,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-sar-echo",
+      "name": "TACTICAL SAR UNIT ECHO",
       "type": "FIELD_TEAM",
       "coordinates": [-65.9800, 18.2300],
       "status": "NOMINAL",
@@ -46,13 +56,23 @@
       "lastContactTick": 0
     },
     {
-      "id": "team-sar-2",
-      "name": "EVACUATION ESCORT FOXTROT",
+      "id": "team-convoy-foxtrot",
+      "name": "MEDICAL EVACUATION CONVOY FOXTROT",
       "type": "FIELD_TEAM",
-      "coordinates": [-66.3000, 18.3800],
+      "coordinates": [-66.3800, 18.3500],
       "status": "NOMINAL",
       "activeChannelId": "ch-radio",
       "health": 0.90,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-port-recon",
+      "name": "COASTAL RECON CELL (FAJARDO)",
+      "type": "OBSERVATION_NODE",
+      "coordinates": [-65.6500, 18.3300],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-sat",
+      "health": 0.96,
       "lastContactTick": 0
     }
   ],
@@ -62,105 +82,157 @@
       "name": "COMMERCIAL CELLULAR TOWER BACKHAUL",
       "type": "PRIMARY",
       "availability": 0.95,
-      "packetLoss": 0.03,
-      "latencyMs": 95,
-      "bandwidthFactor": 0.95,
-      "channelQuality": 0.91,
+      "packetLoss": 0.02,
+      "latencyMs": 85,
+      "bandwidthFactor": 0.96,
+      "channelQuality": 0.92,
       "status": "NORMAL",
       "lastSuccessfulContactTick": 0
     },
     {
       "id": "ch-radio",
-      "name": "EMERGENCY VHF MUNICIPAL RADIO",
+      "name": "EMERGENCY VHF COMBAT NET RADIO",
       "type": "RADIO",
       "availability": 0.88,
-      "packetLoss": 0.08,
-      "latencyMs": 180,
-      "bandwidthFactor": 0.80,
-      "channelQuality": 0.74,
+      "packetLoss": 0.07,
+      "latencyMs": 160,
+      "bandwidthFactor": 0.85,
+      "channelQuality": 0.77,
       "status": "NORMAL",
       "lastSuccessfulContactTick": 0
     },
     {
       "id": "ch-sat",
-      "name": "DEPLOYABLE BGAN SATELLITE TERMINAL",
+      "name": "TACTICAL BGAN SATELLITE TERMINAL",
       "type": "SATELLITE",
-      "availability": 0.98,
-      "packetLoss": 0.02,
-      "latencyMs": 920,
-      "bandwidthFactor": 0.60,
-      "channelQuality": 0.66,
+      "availability": 0.92,
+      "packetLoss": 0.03,
+      "latencyMs": 880,
+      "bandwidthFactor": 0.65,
+      "channelQuality": 0.69,
       "status": "NORMAL",
       "lastSuccessfulContactTick": 0
     }
   ],
   "initialConditions": {
     "commHealth": 0.92,
-    "infoIntegrity": 0.90,
+    "infoIntegrity": 0.91,
     "initialDegradationState": "NORMAL"
   },
   "events": [
     {
       "id": "m-ev-01",
-      "time": 10000,
+      "time": 8000,
       "type": "REPORT_INCOMING",
       "target": "ch-cellular",
-      "message": "SAR Unit Echo reports coastal bridge intact; evacuation route Bravo is clear.",
+      "message": "SAR Unit Echo forward telemetry: Route 3 coastal corridor open; reconnaissance in progress.",
       "payload": {
         "id": "m-rep-01",
         "sourceName": "SAR UNIT ECHO",
         "sourceType": "FIELD_REPORT",
         "channelId": "ch-cellular",
-        "content": "Coastal bridge Route 3 is CLEAR. Medical transport proceeding.",
-        "sourceReliability": 0.88,
+        "content": "Coastal Route 3 bridge transit: CLEAR. Medical evacuation convoy cleared to proceed.",
+        "sourceReliability": 0.91,
         "freshness": 1.0,
-        "consistency": 1.0
+        "consistency": 1.0,
+        "location": { "lat": 18.2300, "lng": -65.9800 }
       }
     },
     {
       "id": "m-ev-02",
-      "time": 22000,
-      "type": "DROPOUT",
+      "time": 18000,
+      "type": "LATENCY",
       "target": "ch-cellular",
-      "severity": 0.85,
-      "message": "FCC CALIBRATION EVENT: 85% of regional cell sites knocked offline due to power loss."
+      "severity": 0.6,
+      "message": "FCC TELEMETRY ALERT: Heavy wind shearing causes microwave dish misalignment at El Yunque tower."
     },
     {
       "id": "m-ev-03",
-      "time": 38000,
-      "type": "CONTRADICTION",
-      "target": "ch-radio",
-      "severity": 0.75,
-      "message": "VHF Radio broadcast contradicts: Route 3 coastal bridge impassable due to flash flooding!",
-      "payload": {
-        "id": "m-rep-02",
-        "sourceName": "MUNICIPAL DISPATCH",
-        "sourceType": "OBSERVATION",
-        "channelId": "ch-radio",
-        "content": "Route 3 bridge WASHED OUT by river surge. DO NOT DISPATCH CONVOY.",
-        "sourceReliability": 0.78,
-        "freshness": 0.85,
-        "consistency": 0.5,
-        "contradictionGroupId": "cg-maria-bridge"
-      }
+      "time": 28000,
+      "type": "PACKET_LOSS",
+      "target": "ch-cellular",
+      "severity": 0.55,
+      "message": "FCC CALIBRATION: Emergency backup generator fuel exhausted; cellular packet loss spikes to 48%."
     },
     {
       "id": "m-ev-04",
-      "time": 95000,
+      "time": 38000,
+      "type": "DROPOUT",
+      "target": "ch-cellular",
+      "severity": 0.95,
+      "message": "CATASTROPHIC OUTAGE: 88% of regional cell base stations offline. Commercial cellular backhaul severed!"
+    },
+    {
+      "id": "m-ev-05",
+      "time": 46000,
+      "type": "CONTRADICTION",
+      "target": "ch-radio",
+      "severity": 0.85,
+      "message": "CONTRADICTION ALERT: Municipal VHF radio reports Route 3 coastal bridge washed out by flash surge!",
+      "payload": {
+        "id": "m-rep-02",
+        "sourceName": "MUNICIPAL DISPATCH VHF",
+        "sourceType": "OBSERVATION",
+        "channelId": "ch-radio",
+        "content": "CRITICAL HAZARD: Route 3 coastal bridge SPAN COLLAPSED in river surge! Convoy must NOT proceed.",
+        "sourceReliability": 0.82,
+        "freshness": 0.9,
+        "consistency": 0.5,
+        "contradictionGroupId": "cg-maria-bridge",
+        "location": { "lat": 18.2800, "lng": -65.8500 }
+      }
+    },
+    {
+      "id": "m-ev-06",
+      "time": 58000,
+      "type": "RELAY_FAILURE",
+      "target": "ch-radio",
+      "severity": 0.7,
+      "message": "Cerro Maravilla repeater tower operating on emergency battery reserves; signal intermittently cutting."
+    },
+    {
+      "id": "m-ev-07",
+      "time": 105000,
       "type": "RECOVERY",
       "target": "ch-sat",
-      "severity": 0.2,
-      "message": "Satellite terminal uplink restored: Aerial SAR recon verifies safe alternative route."
+      "severity": 0.25,
+      "message": "BGAN Satellite uplink stabilized: Aerial recon verifies secondary inland bypass route is intact."
+    },
+    {
+      "id": "m-ev-08",
+      "time": 135000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-sat",
+      "message": "Fajardo Coastal Recon confirms satellite imagery: Route 3 submerged; Mountain Bypass 185 is clear.",
+      "payload": {
+        "id": "m-rep-03",
+        "sourceName": "COASTAL RECON CELL",
+        "sourceType": "OBSERVATION",
+        "channelId": "ch-sat",
+        "content": "Route 3 bridge confirmed DESTROYED. Mountain Bypass Highway 185 verified OPEN for heavy vehicles.",
+        "sourceReliability": 0.94,
+        "freshness": 1.0,
+        "consistency": 1.0,
+        "location": { "lat": 18.3300, "lng": -65.6500 }
+      }
     }
   ],
   "decisionWindows": [
     {
       "id": "m-dw-01",
-      "openAtTick": 55000,
+      "openAtTick": 65000,
       "durationMs": 35000,
       "urgency": "CRITICAL",
-      "situation": "Cellular backhaul has collapsed, radio channel conflicts with prior clearance of Route 3 bridge. Medical convoy is holding at checkpoint.",
+      "situation": "Cellular backhaul has collapsed. SAR Echo reports coastal bridge open, but municipal VHF radio reports bridge washed out. Medical Convoy Foxtrot is 4 minutes from point of no return.",
       "recommendedActions": ["VERIFY", "SWITCH_INFORMATION_CHANNEL", "PAUSE", "ADAPT_PLAN"]
+    },
+    {
+      "id": "m-dw-02",
+      "openAtTick": 120000,
+      "durationMs": 30000,
+      "urgency": "MODERATE",
+      "situation": "Satellite telemetry verifies Route 3 destroyed and Mountain Bypass 185 open. Order Convoy Foxtrot to re-route or hold position.",
+      "recommendedActions": ["ADAPT_PLAN", "RECONFIGURE_TEAM_COORDINATION", "CONTINUE"]
     }
   ],
   "scoringWeights": {

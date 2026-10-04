@@ -14,8 +14,11 @@ import scn03 from '@/../data/scenarios/scn-03-chile.json';
 import scn04 from '@/../data/scenarios/scn-04-storm-corridor.json';
 import scn05 from '@/../data/scenarios/scn-05-seismic-window.json';
 import scn06 from '@/../data/scenarios/scn-06-blackout.json';
+import scn07 from '@/../data/scenarios/scn-07-fukushima.json';
+import scn08 from '@/../data/scenarios/scn-08-ladakh.json';
+import scn09 from '@/../data/scenarios/scn-09-cyber-spoof.json';
 
-const ALL_SCENARIOS = [scn06, scn01, scn02, scn03, scn04, scn05];
+const ALL_SCENARIOS = [scn06, scn01, scn02, scn03, scn04, scn05, scn07, scn08, scn09];
 
 export default function ScenariosPage() {
   const router = useRouter();
@@ -58,7 +61,7 @@ export default function ScenariosPage() {
             </div>
           </div>
           <div className="text-xs text-[#8a9099] bg-[#141618] border border-[#2a2d30] px-3 py-1.5 rounded">
-            6 PRE-CONFIGURED SCENARIOS &bull; 100% OFFLINE READY
+            9 PRE-CONFIGURED SCENARIOS &bull; 100% OFFLINE READY
           </div>
         </div>
 

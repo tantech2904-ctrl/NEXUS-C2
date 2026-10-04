@@ -2,105 +2,241 @@
   "id": "SCN-03",
   "version": "1.0.0",
   "title": "CHILE // FALLBACK WINDOW",
-  "historicalBasis": "Chile Earthquake & Tsunami, February 2010. Calibrated using ITU Disaster Response Documentation 'Saving Lives: Emergency Telecommunications'.",
+  "historicalBasis": "Chile Mw 8.8 Earthquake & Tsunami, 27 February 2010. Calibrated using ITU Emergency Telecommunications in Disaster Response Documentation 'Saving Lives' and ONEMI seismic reports. 93% cellular blackout in Maule/Biobío with microwave line-of-sight misalignment; amateur HF radio net was sole surviving link.",
   "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
   "difficulty": "ADVANCED",
   "seed": 303,
   "durationMs": 180000,
-  "stalenessThresholdSeconds": 35,
+  "stalenessThresholdSeconds": 32,
   "environment": {
     "type": "SEISMIC_SHOCK",
-    "severity": 0.88,
-    "weatherDescription": "Coastal seismic shock triggering tsunami warnings and complete microwave relay severance.",
-    "visibilityKm": 8.0
+    "severity": 0.92,
+    "weatherDescription": "Megathrust earthquake Mw 8.8 offshore Maule/Biobío; catastrophic coastal seafloor deformation and destructive tsunami surge wave.",
+    "visibilityKm": 6.5
   },
   "entities": [
     {
-      "id": "node-cmd",
-      "name": "COASTAL COMMAND BASE (VALPARAISO)",
+      "id": "node-cmd-talcahuano",
+      "name": "COASTAL COMMAND BASE (TALCAHUANO HQ)",
       "type": "COMMAND_NODE",
-      "coordinates": [-71.6127, -33.0472],
+      "coordinates": [-73.1120, -36.7210],
       "status": "NOMINAL",
       "activeChannelId": "ch-primary",
       "health": 1.0,
       "lastContactTick": 0
     },
     {
-      "id": "team-patrol",
-      "name": "COASTAL PATROL LIMA",
+      "id": "node-relay-biobio",
+      "name": "BIOBÍO RIDGE MICROWAVE RELAY TOWER",
+      "type": "RELAY_NODE",
+      "coordinates": [-73.0310, -36.7420],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.94,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-patrol-lima",
+      "name": "COASTAL PATROL LIMA (CONCEPCIÓN BAY)",
       "type": "FIELD_TEAM",
-      "coordinates": [-71.5500, -32.9500],
+      "coordinates": [-73.0640, -36.7820],
       "status": "NOMINAL",
       "activeChannelId": "ch-primary",
       "health": 0.95,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-buoy-alpha",
+      "name": "OFFSHORE SENSOR BUOY (PACIFIC TRENCH)",
+      "type": "OBSERVATION_NODE",
+      "coordinates": [-73.1850, -36.6800],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.98,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-med-sanpedro",
+      "name": "SAN PEDRO EVACUATION & MEDICAL BASE",
+      "type": "SUPPORT_NODE",
+      "coordinates": [-73.0850, -36.8410],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-fallback",
+      "health": 0.92,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-air-charlie",
+      "name": "AIR RESCUE SQUADRON CHARLIE (CARRIEL SUR)",
+      "type": "FIELD_TEAM",
+      "coordinates": [-73.0630, -36.7720],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-secondary",
+      "health": 1.0,
       "lastContactTick": 0
     }
   ],
   "communicationChannels": [
     {
       "id": "ch-primary",
-      "name": "PRIMARY MICROWAVE LINK",
+      "name": "PRIMARY MICROWAVE TRUNK (10 GHz BACKHAUL)",
       "type": "PRIMARY",
       "availability": 0.96,
       "packetLoss": 0.02,
-      "latencyMs": 70,
-      "bandwidthFactor": 0.96,
-      "channelQuality": 0.92,
+      "latencyMs": 45,
+      "bandwidthFactor": 0.98,
+      "channelQuality": 0.94,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-secondary",
+      "name": "VHF COASTAL TACTICAL NET (MARINE CH 16)",
+      "type": "SECONDARY",
+      "availability": 0.85,
+      "packetLoss": 0.12,
+      "latencyMs": 280,
+      "bandwidthFactor": 0.72,
+      "channelQuality": 0.78,
       "status": "NORMAL",
       "lastSuccessfulContactTick": 0
     },
     {
       "id": "ch-fallback",
-      "name": "EMERGENCY HF RADIO NET",
+      "name": "EMERGENCY HF RADIO NET (40m AMATEUR SKY-WAVE)",
       "type": "FALLBACK",
-      "availability": 0.75,
-      "packetLoss": 0.18,
-      "latencyMs": 650,
-      "bandwidthFactor": 0.60,
-      "channelQuality": 0.62,
+      "availability": 0.78,
+      "packetLoss": 0.20,
+      "latencyMs": 620,
+      "bandwidthFactor": 0.55,
+      "channelQuality": 0.64,
       "status": "NORMAL",
       "lastSuccessfulContactTick": 0
     }
   ],
   "initialConditions": {
-    "commHealth": 0.90,
+    "commHealth": 0.94,
     "infoIntegrity": 0.92,
     "initialDegradationState": "NORMAL"
   },
   "events": [
     {
       "id": "c-ev-01",
-      "time": 20000,
-      "type": "DROPOUT",
+      "time": 8000,
+      "type": "REPORT_INCOMING",
       "target": "ch-primary",
-      "severity": 1.0,
-      "message": "TOTAL SEVERANCE: Microwave transmission tower collapsed by earthquake shock."
+      "message": "Routine oceanographic check: Pacific Trench Buoy reporting normal tidal cycle (+0.2m).",
+      "payload": {
+        "id": "c-rep-00",
+        "sourceName": "OFFSHORE SENSOR BUOY",
+        "sourceType": "SENSOR",
+        "channelId": "ch-primary",
+        "content": "Pacific Trench Buoy reports normal hydrostatic pressure; sea surface height anomaly within +/- 0.15m baseline.",
+        "sourceReliability": 0.95,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
     },
     {
       "id": "c-ev-02",
-      "time": 35000,
+      "time": 18000,
+      "type": "DROPOUT",
+      "target": "ch-primary",
+      "severity": 1.0,
+      "message": "TOTAL TRUNK SEVERANCE: M8.8 megathrust shockwave misaligns Biobío microwave dishes and shears terrestrial power feed."
+    },
+    {
+      "id": "c-ev-03",
+      "time": 28000,
       "type": "REPORT_INCOMING",
-      "target": "ch-fallback",
-      "message": "Weak HF radio carrier detected from Coastal Patrol Lima.",
+      "target": "ch-secondary",
+      "message": "Coastal Patrol Lima transmits visual observation via VHF tactical net.",
       "payload": {
         "id": "c-rep-01",
         "sourceName": "COASTAL PATROL LIMA",
         "sourceType": "FIELD_REPORT",
-        "channelId": "ch-fallback",
-        "content": "Harbor water receding rapidly. Tsunami arrival calculated in 12 minutes.",
-        "sourceReliability": 0.91,
+        "channelId": "ch-secondary",
+        "content": "CRITICAL OBSERVATION: Talcahuano harbor waters rapidly receding. Ocean floor exposed 400m past high-water mark. Inundation surge imminent within 10-15 minutes.",
+        "sourceReliability": 0.92,
         "freshness": 1.0,
         "consistency": 1.0
       }
+    },
+    {
+      "id": "c-ev-04",
+      "time": 42000,
+      "type": "CONTRADICTION",
+      "target": "ch-secondary",
+      "severity": 0.85,
+      "message": "CRITICAL CONTRADICTION: Automated civilian siren rebroadcast claims tsunami threat cancelled, directly contradicting field observations.",
+      "payload": {
+        "id": "c-rep-02",
+        "sourceName": "CIVIL BROADCAST MONITOR",
+        "sourceType": "EXTERNAL_BROADCAST",
+        "channelId": "ch-secondary",
+        "content": "STALE BULLETIN: Civil Defense relay re-broadcasts unconfirmed morning clearance stating 'NO TSUNAMI RISK DETECTED — CITIZENS RETURN TO RESIDENCES'.",
+        "sourceReliability": 0.40,
+        "freshness": 0.35,
+        "consistency": 0.20
+      }
+    },
+    {
+      "id": "c-ev-05",
+      "time": 52000,
+      "type": "BANDWIDTH_CONGESTION",
+      "target": "ch-secondary",
+      "severity": 0.75,
+      "message": "VHF Marine Band saturated with emergency civilian distress traffic. Latency increases to 950ms."
+    },
+    {
+      "id": "c-ev-06",
+      "time": 68000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "Amateur Radio Emergency Net reports confirmed wave cresting past seawall.",
+      "payload": {
+        "id": "c-rep-03",
+        "sourceName": "SAN PEDRO EVACUATION & MEDICAL BASE",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-fallback",
+        "content": "San Pedro Base monitoring 40m HF sky-wave: Concepción maritime lookout confirms first destructive surge wave crossing outer harbor wall. Lowlands flooding.",
+        "sourceReliability": 0.88,
+        "freshness": 0.95,
+        "consistency": 0.95
+      }
+    },
+    {
+      "id": "c-ev-07",
+      "time": 95000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "Air Rescue Charlie establishes voice patch with Command.",
+      "payload": {
+        "id": "c-rep-04",
+        "sourceName": "AIR RESCUE SQUADRON CHARLIE",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-fallback",
+        "content": "Airborne over Talcahuano: Confirmed multi-meter tsunami crest surging inland. Civilian bulletin was dangerously erroneous. High ground retreat imperative.",
+        "sourceReliability": 0.94,
+        "freshness": 1.0,
+        "consistency": 0.98
+      }
+    },
+    {
+      "id": "c-ev-08",
+      "time": 125000,
+      "type": "RECOVERY",
+      "target": "ch-fallback",
+      "message": "Amateur HF radio net establishes synchronized 40m tactical relay between command post, field patrols, and naval air wing."
     }
   ],
   "decisionWindows": [
     {
       "id": "c-dw-01",
-      "openAtTick": 50000,
-      "durationMs": 30000,
+      "openAtTick": 48000,
+      "durationMs": 35000,
       "urgency": "CRITICAL",
-      "situation": "Primary microwave backhaul dead. HF radio reports harbor water receding. Trainee must switch channels and order evacuation.",
+      "situation": "Primary microwave trunk is dead. Coastal Patrol Lima reports harbor waters rapidly receding (tsunami precursor), but a stale civilian broadcast claims no threat exists. You must evaluate source reliability, switch communications to fallback nets, and trigger immediate high-ground evacuation.",
       "recommendedActions": ["SWITCH_INFORMATION_CHANNEL", "ESCALATE", "ADAPT_PLAN"]
     }
   ],
@@ -108,8 +244,8 @@
     "decisionQuality": 0.30,
     "timeliness": 0.15,
     "informationDiscipline": 0.15,
-    "sourceEvaluation": 0.10,
-    "communicationResilience": 0.20,
+    "sourceEvaluation": 0.15,
+    "communicationResilience": 0.15,
     "coordination": 0.05,
     "riskManagement": 0.025,
     "adaptability": 0.025
@@ -119,7 +255,13 @@
       "name": "ITU Emergency Telecommunications in Disaster Response — Chile 2010",
       "organization": "International Telecommunication Union",
       "url": "https://www.itu.int/en/ITU-D/Emergency-Telecommunications/Pages/ITUDisasterResponse.aspx",
-      "usage": "Calibrates catastrophic primary link failure and fallback radio activation"
+      "usage": "Calibrates catastrophic microwave backhaul misalignment and amateur HF radio net fallback resilience"
+    },
+    {
+      "name": "ONEMI Technical After-Action Report: 27F 2010 Tsunami Alert Failure",
+      "organization": "Oficina Nacional de Emergencia del Ministerio del Interior (Chile)",
+      "url": "https://www.onemi.gov.cl/",
+      "usage": "Calibrates dangerous contradiction between stale civilian broadcasts and physical sea-drawdown field reports"
     }
   ]
 }

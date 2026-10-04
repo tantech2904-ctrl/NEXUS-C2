@@ -63,3 +63,49 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #4fc3d0;
 }
+
+/* High-Precision Print & PDF Export Formatting */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 12mm 15mm 15mm 15mm;
+  }
+
+  *, *:before, *:after {
+    box-sizing: border-box !important;
+  }
+
+  html, body {
+    background-color: #ffffff !important;
+    color: #111827 !important;
+    height: auto !important;
+    min-height: auto !important;
+    overflow: visible !important;
+    user-select: text !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Unclip all containers so multiple pages flow naturally without being cut off */
+  #__next, div, main, section {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /* Hide interactive web elements during printing */
+  header, footer, nav, button, select, .no-print, [data-no-print="true"] {
+    display: none !important;
+  }
+
+  /* Prevent page cuts inside cards, score panels, and decision blocks */
+  .break-inside-avoid, .print-avoid-break {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+  }
+
+  .print-page-break-before {
+    break-before: page !important;
+    page-break-before: always !important;
+  }
+}

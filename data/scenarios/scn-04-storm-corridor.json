@@ -1,8 +1,8 @@
 {
   "id": "SCN-04",
   "version": "1.0.0",
-  "title": "STORM CORRIDOR",
-  "historicalBasis": "Calibrated with NOAA IBTrACS cyclone trajectory & NOAA Storm Events database.",
+  "title": "STORM CORRIDOR // RAIN FADE",
+  "historicalBasis": "Odisha Super Cyclone (05B) & Cyclone Fani, Bay of Bengal. Calibrated using NOAA IBTrACS tropical cyclone track archive and IMD (India Meteorological Department) Doppler radar outage and microwave rain-fade records. Catastrophic 260 km/h winds and >150 mm/hr precipitation inducing 30 dB UHF path loss.",
   "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
   "difficulty": "ADVANCED",
   "seed": 404,
@@ -10,52 +10,104 @@
   "stalenessThresholdSeconds": 30,
   "environment": {
     "type": "SEVERE_WEATHER",
-    "severity": 0.82,
-    "weatherDescription": "Severe tropical depression eye passing over tactical corridor; torrential squalls.",
-    "visibilityKm": 1.5
+    "severity": 0.95,
+    "weatherDescription": "Category 5 Super Cyclonic Storm eyewall crossing Paradip coast; 260 km/h sustained gusts, catastrophic sea surge, extreme rain attenuation.",
+    "visibilityKm": 0.8
   },
   "entities": [
     {
-      "id": "node-cmd",
-      "name": "NEXUS COMMAND DELTA",
+      "id": "node-cmd-paradip",
+      "name": "PARADIP HARBOR COMMAND HQ",
       "type": "COMMAND_NODE",
-      "coordinates": [85.8245, 20.2961],
+      "coordinates": [86.6100, 20.3160],
       "status": "NOMINAL",
       "activeChannelId": "ch-primary",
       "health": 1.0,
       "lastContactTick": 0
     },
     {
-      "id": "team-recon",
-      "name": "TACTICAL RECON KILO",
-      "type": "FIELD_TEAM",
-      "coordinates": [86.2000, 20.4500],
+      "id": "node-relay-doppler",
+      "name": "COASTAL DOPPLER RADAR RELAY TOWER",
+      "type": "RELAY_NODE",
+      "coordinates": [86.5600, 20.3550],
       "status": "NOMINAL",
       "activeChannelId": "ch-primary",
-      "health": 0.88,
+      "health": 0.90,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-cg-bravo",
+      "name": "COAST GUARD RESCUE UNIT BRAVO",
+      "type": "FIELD_TEAM",
+      "coordinates": [86.6800, 20.2750],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.92,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-aws-coastal",
+      "name": "OFFSHORE AUTOMATED BUOY AWS-04",
+      "type": "OBSERVATION_NODE",
+      "coordinates": [86.7150, 20.3800],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.96,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-evac-amphib",
+      "name": "RAPID AMPHIBIOUS EVAC BRIGADE",
+      "type": "FIELD_TEAM",
+      "coordinates": [86.5300, 20.2850],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-secondary",
+      "health": 0.95,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-shelter-7",
+      "name": "CYCLONE SHELTER SECTOR 7 (HIGHLAND)",
+      "type": "SUPPORT_NODE",
+      "coordinates": [86.4700, 20.3700],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-fallback",
+      "health": 1.0,
       "lastContactTick": 0
     }
   ],
   "communicationChannels": [
     {
       "id": "ch-primary",
-      "name": "TACTICAL UHF COMMS",
+      "name": "TACTICAL UHF RF MESH (380-400 MHz)",
       "type": "PRIMARY",
-      "availability": 0.90,
-      "packetLoss": 0.05,
-      "latencyMs": 90,
-      "bandwidthFactor": 0.90,
-      "channelQuality": 0.85,
+      "availability": 0.94,
+      "packetLoss": 0.03,
+      "latencyMs": 60,
+      "bandwidthFactor": 0.94,
+      "channelQuality": 0.90,
       "status": "NORMAL",
       "lastSuccessfulContactTick": 0
     },
     {
       "id": "ch-secondary",
-      "name": "HARDWIRE FIELD CABLE",
+      "name": "INMARSAT SATELLITE TERMINAL (L-BAND)",
       "type": "SECONDARY",
-      "availability": 0.98,
+      "availability": 0.88,
+      "packetLoss": 0.08,
+      "latencyMs": 480,
+      "bandwidthFactor": 0.75,
+      "channelQuality": 0.80,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-fallback",
+      "name": "SHIELDED MILITARY HARDWIRE WIRE-LINE",
+      "type": "FALLBACK",
+      "availability": 0.99,
       "packetLoss": 0.00,
-      "latencyMs": 25,
+      "latencyMs": 20,
       "bandwidthFactor": 0.99,
       "channelQuality": 0.98,
       "status": "NORMAL",
@@ -63,53 +115,153 @@
     }
   ],
   "initialConditions": {
-    "commHealth": 0.91,
-    "infoIntegrity": 0.90,
+    "commHealth": 0.93,
+    "infoIntegrity": 0.92,
     "initialDegradationState": "NORMAL"
   },
   "events": [
     {
       "id": "s-ev-01",
-      "time": 25000,
-      "type": "WEATHER_SHIFT",
-      "severity": 0.9,
-      "message": "NOAA Track Ingress: Tropical storm eyewall envelope enters Sector Delta."
+      "time": 7000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-primary",
+      "message": "Routine telemetry: AWS-04 pressure reading 965 hPa, barometric pressure falling steadily.",
+      "payload": {
+        "id": "s-rep-00",
+        "sourceName": "OFFSHORE AUTOMATED BUOY AWS-04",
+        "sourceType": "SENSOR",
+        "channelId": "ch-primary",
+        "content": "AWS-04 automated telemetry: Central pressure 965 hPa, sustained wind 75 knots, wave height 4.2m.",
+        "sourceReliability": 0.95,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
     },
     {
       "id": "s-ev-02",
-      "time": 40000,
+      "time": 18000,
+      "type": "WEATHER_SHIFT",
+      "severity": 0.95,
+      "message": "NOAA / IMD Ingress Alert: Category 5 eyewall strikes coastal corridor; torrential deluge exceeding 160 mm/hr."
+    },
+    {
+      "id": "s-ev-03",
+      "time": 28000,
       "type": "BANDWIDTH_CONGESTION",
       "target": "ch-primary",
-      "severity": 0.75,
-      "message": "Severe rain fade attenuating UHF RF signals. Packet transmission times quadruple."
+      "severity": 0.85,
+      "message": "SEVERE RAIN FADE: Extreme liquid water droplet density causes 28 dB attenuation on tactical UHF frequencies. 60% packet drop."
+    },
+    {
+      "id": "s-ev-04",
+      "time": 40000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-secondary",
+      "message": "Coast Guard Rescue Unit Bravo transmits visual flash report via SatCom.",
+      "payload": {
+        "id": "s-rep-01",
+        "sourceName": "COAST GUARD RESCUE UNIT BRAVO",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-secondary",
+        "content": "URGENT FIELD DISPATCH: Eastern sea wall breached near Mahanadi rivermouth. 5-meter tidal surge rushing toward coastal hamlet. Low-ground escape routes underwater.",
+        "sourceReliability": 0.93,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "id": "s-ev-05",
+      "time": 48000,
+      "type": "CONTRADICTION",
+      "target": "ch-primary",
+      "severity": 0.80,
+      "message": "CONTRADICTION: Automated harbor telemetry claims sea wall sensors register nominal water level, conflicting with Coast Guard visuals.",
+      "payload": {
+        "id": "s-rep-02",
+        "sourceName": "HARBOR FLOOD GATE AUTOMATION",
+        "sourceType": "SENSOR",
+        "channelId": "ch-primary",
+        "content": "STALE SENSOR: Harbor telemetry registers flood gate water level at normal +0.8m (sensor clogged with mud and silt; failed to report electrical short).",
+        "sourceReliability": 0.35,
+        "freshness": 0.40,
+        "consistency": 0.25
+      }
+    },
+    {
+      "id": "s-ev-06",
+      "time": 56000,
+      "type": "DROPOUT",
+      "target": "ch-secondary",
+      "severity": 0.90,
+      "message": "SATCOM FAILURE: Inmarsat antenna pedestal gimbal severed by 240 km/h wind shear. Geostationary satellite tracking lost."
+    },
+    {
+      "id": "s-ev-07",
+      "time": 72000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "Cyclone Shelter Sector 7 confirms armored hardwire wire-line connection operational.",
+      "payload": {
+        "id": "s-rep-03",
+        "sourceName": "CYCLONE SHELTER SECTOR 7 (HIGHLAND)",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-fallback",
+        "content": "Shelter Sector 7 direct hardwire secure: Facility structurally sound on high ground with capacity for 2,500 evacuees. Requesting amphibious brigade diversion here.",
+        "sourceReliability": 0.98,
+        "freshness": 1.0,
+        "consistency": 0.96
+      }
+    },
+    {
+      "id": "s-ev-08",
+      "time": 98000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "Amphibious Evac Brigade patches into hardwire junction box.",
+      "payload": {
+        "id": "s-rep-04",
+        "sourceName": "RAPID AMPHIBIOUS EVAC BRIGADE",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-fallback",
+        "content": "Connected to hardwire terminal: Low coastal highway submerged by 2.5m surge. Confirming Coast Guard report; diverting all civilians along elevated rail embankment to Shelter 7.",
+        "sourceReliability": 0.95,
+        "freshness": 1.0,
+        "consistency": 0.98
+      }
     }
   ],
   "decisionWindows": [
     {
       "id": "s-dw-01",
-      "openAtTick": 60000,
-      "durationMs": 30000,
-      "urgency": "MODERATE",
-      "situation": "Storm envelope is degrading wireless channels. Hardwire cable is immune but limited in range. Trainee must reconfigure communication coordination.",
-      "recommendedActions": ["RECONFIGURE_TEAM_COORDINATION", "ADAPT_PLAN", "PAUSE"]
+      "openAtTick": 52000,
+      "durationMs": 35000,
+      "urgency": "CRITICAL",
+      "situation": "UHF radio is suffering severe rain-fade packet loss and the Inmarsat satellite mast has collapsed. A clogged automated sensor reports sea walls are intact while Coast Guard Bravo visually confirms a 5-meter surge inundation. You must evaluate sensor vs visual credibility, transition coordination to shielded field hardwire, and redirect evacuation convoys to Shelter 7.",
+      "recommendedActions": ["SWITCH_INFORMATION_CHANNEL", "RECONFIGURE_TEAM_COORDINATION", "ADAPT_PLAN"]
     }
   ],
   "scoringWeights": {
-    "decisionQuality": 0.25,
-    "timeliness": 0.10,
-    "informationDiscipline": 0.20,
-    "sourceEvaluation": 0.10,
-    "communicationResilience": 0.20,
+    "decisionQuality": 0.30,
+    "timeliness": 0.15,
+    "informationDiscipline": 0.15,
+    "sourceEvaluation": 0.15,
+    "communicationResilience": 0.15,
     "coordination": 0.05,
-    "riskManagement": 0.05,
-    "adaptability": 0.05
+    "riskManagement": 0.025,
+    "adaptability": 0.025
   },
   "sources": [
     {
-      "name": "NOAA IBTrACS Tropical Cyclone Archive",
+      "name": "NOAA IBTrACS Tropical Cyclone Archive — Bay of Bengal",
       "organization": "National Oceanic and Atmospheric Administration",
       "url": "https://www.ncei.noaa.gov/products/international-best-track-archive",
-      "usage": "Calibrates weather-induced RF degradation along storm eye corridor"
+      "usage": "Calibrates tropical cyclone eye track, wind field velocity, and atmospheric rain-fade parameters"
+    },
+    {
+      "name": "IMD Technical Report on Cyclone Disaster Mitigation & Communications",
+      "organization": "India Meteorological Department",
+      "url": "https://mausam.imd.gov.in/",
+      "usage": "Calibrates Doppler radar antenna radome vulnerability, RF signal path loss, and sensor mud-fouling failure modes"
     }
   ]
 }

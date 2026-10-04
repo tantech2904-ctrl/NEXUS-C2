@@ -68,6 +68,33 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     });
 
     const initialCommHealth = calculateAggregateCommHealth(channelsMap);
+    const initialChannelId = Object.keys(channelsMap)[0] || 'ch-primary';
+
+    // Baseline Operational Telemetry Item so feed is never blank
+    const baselineItem: InformationItem = {
+      id: `base-${scenario.id}-0`,
+      sourceName: 'COMMAND OPERATIONS DESK',
+      sourceType: 'COMMAND',
+      channelId: initialChannelId,
+      timestamp: 0,
+      receivedAt: 0,
+      content: `OPERATIONAL COMMENCEMENT: ${scenario.title}. Environment: ${scenario.environment.type} (${scenario.environment.weatherDescription}). All forward assets reporting baseline telemetry.`,
+      sourceReliability: 0.95,
+      freshness: 1.0,
+      consistency: 1.0,
+      channelQuality: initialCommHealth,
+      confidence: initialCommHealth * 0.95,
+      verification: 'CONFIRMED',
+      ageSeconds: 0,
+      explanation: {
+        sourceReliability: 0.95,
+        channelQuality: initialCommHealth,
+        freshness: 1.0,
+        consistency: 1.0,
+        compositeConfidence: initialCommHealth * 0.95,
+        reasons: ['Initial operational baseline telemetry confirmed across active command channels.'],
+      },
+    };
 
     set({
       scenario,
@@ -77,16 +104,16 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       missionPhase: 'PHASE 01 / NOMINAL OBSERVATION',
       commHealth: initialCommHealth,
       infoIntegrity: scenario.initialConditions.infoIntegrity || 0.94,
-      overallDegradationState: scenario.initialConditions.initialDegradationState as CommunicationDegradationState || 'NORMAL',
+      overallDegradationState: (scenario.initialConditions.initialDegradationState as CommunicationDegradationState) || 'NORMAL',
       channels: channelsMap,
       entities: entitiesMap,
-      informationItems: [],
+      informationItems: [baselineItem],
       eventLog: [
         {
-          id: 'log-init',
+          id: `init-${scenario.id}`,
           tick: 0,
           category: 'SYSTEM',
-          message: `Scenario initialized: ${scenario.title} (${scenario.difficulty})`,
+          message: `Mission Loaded: ${scenario.title} [${scenario.difficulty}]`,
         },
       ],
       activeDecisionWindow: null,
@@ -116,8 +143,15 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
     let newItems = [...informationItems];
     let newDegradationState = get().overallDegradationState;
 
-    if (inject.target && newChannels[inject.target]) {
-      const ch = newChannels[inject.target];
+    // Apply degradation to target channel or all channels if unspecified
+    const targetChannelIds = inject.target
+      ? [inject.target]
+      : Object.keys(newChannels);
+
+    targetChannelIds.forEach((targetId) => {
+      const ch = newChannels[targetId];
+      if (!ch) return;
+
       if (inject.type === 'LATENCY') {
         ch.latencyMs = Math.round(ch.latencyMs * (1 + (inject.severity || 0.5) * 3));
         ch.status = 'HIGH_LATENCY';
@@ -132,20 +166,34 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         ch.latencyMs = 5000;
         ch.status = inject.type === 'RELAY_FAILURE' ? 'RELAY_FAILURE' : 'SEVERE_DROPOUT';
         newDegradationState = ch.status;
+      } else if (inject.type === 'BANDWIDTH_CONGESTION') {
+        ch.bandwidthFactor = Math.max(0.15, ch.bandwidthFactor - (inject.severity || 0.5));
+        ch.latencyMs = Math.round(ch.latencyMs * 2.2);
+        ch.status = 'BANDWIDTH_CONGESTION';
+        newDegradationState = 'BANDWIDTH_CONGESTION';
+      } else if (inject.type === 'WEATHER_SHIFT') {
+        ch.packetLoss = Math.min(0.7, ch.packetLoss + (inject.severity || 0.35));
+        ch.status = 'MINOR_DELAY';
+      } else if (inject.type === 'SENSOR_LOSS') {
+        ch.availability = Math.max(0.2, ch.availability - 0.5);
+        ch.status = 'PARTIAL_SENSOR_LOSS';
       } else if (inject.type === 'RECOVERY') {
-        ch.availability = 0.92;
-        ch.packetLoss = 0.04;
-        ch.latencyMs = 150;
+        ch.availability = 0.94;
+        ch.packetLoss = 0.03;
+        ch.latencyMs = 120;
+        ch.bandwidthFactor = 0.92;
         ch.status = 'RECOVERY';
         newDegradationState = 'RECOVERY';
       }
-      ch.channelQuality = calculateChannelQuality(ch);
-      newChannels[inject.target] = ch;
-    }
 
+      ch.channelQuality = calculateChannelQuality(ch);
+      newChannels[targetId] = ch;
+    });
+
+    // Ingest Explicit Report Incoming
     if (inject.type === 'REPORT_INCOMING' && inject.payload) {
       const p = inject.payload;
-      const targetChannel = newChannels[p.channelId];
+      const targetChannel = newChannels[p.channelId] || Object.values(newChannels)[0];
       const cq = targetChannel ? targetChannel.channelQuality : 0.8;
       const conf = calculateConfidence(p.sourceReliability, cq, 1.0, p.consistency || 1.0);
       const explanation = explainConfidenceChange(
@@ -160,7 +208,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       );
 
       const newItem: InformationItem = {
-        id: p.id || `item-${Date.now()}`,
+        id: p.id || `item-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
         sourceName: p.sourceName,
         sourceType: p.sourceType,
         channelId: p.channelId,
@@ -179,11 +227,10 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
         explanation,
       };
       newItems = [newItem, ...newItems];
-    }
-
-    if (inject.type === 'CONTRADICTION' && inject.payload) {
+    } else if (inject.type === 'CONTRADICTION' && inject.payload) {
+      // Ingest Explicit Contradiction
       const p = inject.payload;
-      const targetChannel = newChannels[p.channelId];
+      const targetChannel = newChannels[p.channelId] || Object.values(newChannels)[0];
       const cq = targetChannel ? targetChannel.channelQuality : 0.7;
       const conf = calculateConfidence(p.sourceReliability, cq, p.freshness || 0.8, 0.5);
       const explanation = explainConfidenceChange(
@@ -198,7 +245,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       );
 
       const newItem: InformationItem = {
-        id: p.id || `contra-${Date.now()}`,
+        id: p.id || `contra-${Date.now()}-${Math.random().toString(36).substr(2, 4)}`,
         sourceName: p.sourceName,
         sourceType: p.sourceType,
         channelId: p.channelId,
@@ -233,6 +280,40 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
       newItems = [newItem, ...newItems];
       newDegradationState = 'CONTRADICTORY_REPORTS';
+    } else if (inject.message) {
+      // Automatic Intelligence Alert generated from operational events
+      const defaultChannelId = inject.target || Object.keys(newChannels)[0] || 'ch-primary';
+      const targetChannel = newChannels[defaultChannelId] || Object.values(newChannels)[0];
+      const cq = targetChannel ? targetChannel.channelQuality : 0.75;
+      const rel = 0.88;
+      const conf = calculateConfidence(rel, cq, 1.0, 1.0);
+
+      const alertItem: InformationItem = {
+        id: `inject-alert-${tick}-${Math.random().toString(36).substr(2, 4)}`,
+        sourceName: inject.type === 'RECOVERY' ? 'AUXILIARY SATCOM' : 'TACTICAL SENSOR MESH',
+        sourceType: 'SENSOR',
+        channelId: defaultChannelId,
+        timestamp: tick,
+        receivedAt: tick,
+        content: inject.message,
+        sourceReliability: rel,
+        freshness: 1.0,
+        consistency: 1.0,
+        channelQuality: cq,
+        confidence: conf,
+        verification: deriveStatus(conf, 0, 35, false, targetChannel ? targetChannel.availability < 0.15 : false),
+        ageSeconds: 0,
+        explanation: {
+          sourceReliability: rel,
+          channelQuality: cq,
+          freshness: 1.0,
+          consistency: 1.0,
+          compositeConfidence: conf,
+          reasons: [`Operational Ingest: ${inject.type}`],
+        },
+      };
+
+      newItems = [alertItem, ...newItems];
     }
 
     const updatedCommHealth = calculateAggregateCommHealth(newChannels);
@@ -278,7 +359,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
 
     const newTick = tick + deltaMs;
 
-    // Check mission phase transitions
+    // Mission Phase Calculation
     let missionPhase: MissionPhase = 'PHASE 01 / NOMINAL OBSERVATION';
     if (newTick > 120000) {
       missionPhase = 'PHASE 04 / RECOVERY & STABILIZATION';
@@ -288,7 +369,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       missionPhase = 'PHASE 02 / DEGRADED INFORMATION';
     }
 
-    // Process due events from MSEL
+    // Process due MSEL events
     const newProcessedIds = new Set(processedEventIds);
     scenario.events.forEach((ev) => {
       if (ev.time <= newTick && !newProcessedIds.has(ev.id)) {
@@ -309,7 +390,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       }
     });
 
-    // Dynamically recalculate ICE for all information items
+    // Dynamic ICE computation
     const stalenessThreshold = scenario.stalenessThresholdSeconds || 35;
     const currentChannels = get().channels;
     const updatedItems = informationItems.map((item) => {
@@ -343,7 +424,7 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       };
     });
 
-    // Record snapshot every ~1000ms simulation time
+    // Record historical snapshot every ~1000ms
     let newSnapshots = historicalSnapshots;
     const lastSnapTick = historicalSnapshots.length > 0
       ? historicalSnapshots[historicalSnapshots.length - 1].tick
@@ -433,23 +514,21 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       scoreResult.outcomeClass
     );
 
-    // Save snapshot to immutable sessionStore
     useSessionStore.getState().recordDecision(snapshot, scoreResult);
 
-    // Add event log
     const newLog = [
       {
         id: `dec-${tick}`,
         tick,
         category: 'COMMAND',
-        message: `Trainee Command Action: [${action}] — Score: ${scoreResult.overallScore}/100 (${scoreResult.outcomeClass})`,
+        message: `Command Decision: [${action}] — Score: ${scoreResult.overallScore}/100 (${scoreResult.outcomeClass})`,
       },
       ...get().eventLog,
     ];
 
     set({
       eventLog: newLog,
-      activeDecisionWindow: null, // close window on submission
+      activeDecisionWindow: null,
     });
   },
 }));

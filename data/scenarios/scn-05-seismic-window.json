@@ -1,8 +1,8 @@
 {
   "id": "SCN-05",
   "version": "1.0.0",
-  "title": "SEISMIC WINDOW",
-  "historicalBasis": "Calibrated with USGS Earthquake Catalog FDSN event feed and ShakeMap intensity data.",
+  "title": "SEISMIC WINDOW // FAULT SHEAR",
+  "historicalBasis": "USGS ShakeMap Calibrated Mw 7.7 Seismic Rupture Event (Analog: Bhuj & Northridge fault shear studies). Calibrated using USGS Earthquake Hazards Program FDSN web feeds, instrumental ground acceleration ShakeMap records (PGA > 0.8g), and post-earthquake telecommunications network survivability analyses.",
   "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
   "difficulty": "ADVANCED",
   "seed": 505,
@@ -10,116 +10,258 @@
   "stalenessThresholdSeconds": 30,
   "environment": {
     "type": "SEISMIC_SHOCK",
-    "severity": 0.85,
-    "weatherDescription": "Magnitude 7.4 seismic event; dust cloud obscuring optical observation drones.",
-    "visibilityKm": 3.0
+    "severity": 0.92,
+    "weatherDescription": "Magnitude 7.7 blind thrust fault slip; ground rupture displacement >3.5m, dense particulate dust cloud obscuring optical electro-optical drone sensors.",
+    "visibilityKm": 2.2
   },
   "entities": [
     {
-      "id": "node-cmd",
-      "name": "REGIONAL EMERGENCY HQ",
+      "id": "node-cmd-bhuj",
+      "name": "FORWARD DISASTER MANAGEMENT HQ",
       "type": "COMMAND_NODE",
-      "coordinates": [72.8777, 19.0760],
+      "coordinates": [69.8000, 23.2500],
       "status": "NOMINAL",
       "activeChannelId": "ch-primary",
       "health": 1.0,
       "lastContactTick": 0
     },
     {
-      "id": "team-scout",
-      "name": "SCOUT TEAM SIERRA",
+      "id": "node-relay-cow",
+      "name": "TACTICAL CELLULAR COW (CELL ON WHEELS)",
+      "type": "RELAY_NODE",
+      "coordinates": [69.9200, 23.2900],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.92,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-usar-sierra",
+      "name": "URBAN SEARCH & RESCUE TEAM SIERRA",
       "type": "FIELD_TEAM",
-      "coordinates": [72.9500, 19.1200],
+      "coordinates": [70.0200, 23.3400],
       "status": "NOMINAL",
       "activeChannelId": "ch-primary",
       "health": 0.94,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-uav-recon",
+      "name": "THERMAL / OPTICAL RECON DRONE FLIGHT",
+      "type": "OBSERVATION_NODE",
+      "coordinates": [70.0800, 23.3800],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-secondary",
+      "health": 0.96,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-eng-corps",
+      "name": "COMBAT ENGINEER DETACHMENT",
+      "type": "FIELD_TEAM",
+      "coordinates": [69.9600, 23.3100],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-secondary",
+      "health": 0.95,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-hosp-triage",
+      "name": "PROVISIONAL TRIAGE FIELD HOSPITAL",
+      "type": "SUPPORT_NODE",
+      "coordinates": [69.8500, 23.2200],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-fallback",
+      "health": 1.0,
       "lastContactTick": 0
     }
   ],
   "communicationChannels": [
     {
       "id": "ch-primary",
-      "name": "METRO FIBER OPTIC RING",
+      "name": "SUBTERRANEAN METRO FIBER TRUNK",
       "type": "PRIMARY",
       "availability": 0.98,
       "packetLoss": 0.01,
-      "latencyMs": 40,
+      "latencyMs": 25,
       "bandwidthFactor": 0.99,
-      "channelQuality": 0.97,
+      "channelQuality": 0.98,
       "status": "NORMAL",
       "lastSuccessfulContactTick": 0
     },
     {
       "id": "ch-secondary",
-      "name": "TACTICAL DRONE MESH",
+      "name": "TACTICAL CELLULAR MESH (COW RELAY)",
       "type": "SECONDARY",
-      "availability": 0.85,
-      "packetLoss": 0.10,
-      "latencyMs": 280,
-      "bandwidthFactor": 0.70,
-      "channelQuality": 0.76,
+      "availability": 0.88,
+      "packetLoss": 0.09,
+      "latencyMs": 210,
+      "bandwidthFactor": 0.76,
+      "channelQuality": 0.80,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-fallback",
+      "name": "LOW-BAND VHF TACTICAL TRANSCEIVERS (70 MHz)",
+      "type": "FALLBACK",
+      "availability": 0.92,
+      "packetLoss": 0.05,
+      "latencyMs": 140,
+      "bandwidthFactor": 0.65,
+      "channelQuality": 0.84,
       "status": "NORMAL",
       "lastSuccessfulContactTick": 0
     }
   ],
   "initialConditions": {
-    "commHealth": 0.95,
-    "infoIntegrity": 0.95,
+    "commHealth": 0.96,
+    "infoIntegrity": 0.94,
     "initialDegradationState": "NORMAL"
   },
   "events": [
     {
       "id": "se-ev-01",
-      "time": 20000,
-      "type": "DROPOUT",
+      "time": 6000,
+      "type": "REPORT_INCOMING",
       "target": "ch-primary",
-      "severity": 0.9,
-      "message": "SEISMIC SHOCK: Ground rupture severs primary fiber optic loop."
+      "message": "Routine baseline report: USAR Sierra staging complete; fiber trunk telemetry normal.",
+      "payload": {
+        "id": "se-rep-00",
+        "sourceName": "URBAN SEARCH & RESCUE TEAM SIERRA",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-primary",
+        "content": "USAR Sierra operational: Sector structural scans complete. 120 rescue personnel equipped with acoustic listening devices.",
+        "sourceReliability": 0.95,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
     },
     {
       "id": "se-ev-02",
-      "time": 32000,
+      "time": 16000,
+      "type": "DROPOUT",
+      "target": "ch-primary",
+      "severity": 1.0,
+      "message": "SEISMIC FAULT SHEAR: Mw 7.7 earthquake creates 3.8m horizontal ground offset. Metro subterranean fiber conduit severed instantly."
+    },
+    {
+      "id": "se-ev-03",
+      "time": 26000,
+      "type": "SENSOR_LOSS",
+      "severity": 0.85,
+      "message": "ATMOSPHERIC DUST INGRESS: Masonry collapse generates dense particulate cloud. Drone electro-optical cameras completely blinded."
+    },
+    {
+      "id": "se-ev-04",
+      "time": 38000,
       "type": "REPORT_INCOMING",
       "target": "ch-secondary",
-      "message": "Scout Sierra reports bridge collapsed; immediate evacuation detour required.",
+      "message": "USAR Sierra transmits urgent bridge collapse alert via COW mobile cellular link.",
       "payload": {
         "id": "se-rep-01",
-        "sourceName": "SCOUT TEAM SIERRA",
+        "sourceName": "URBAN SEARCH & RESCUE TEAM SIERRA",
         "sourceType": "FIELD_REPORT",
         "channelId": "ch-secondary",
-        "content": "River overpass span dropped into gorge. Entire sector cut off.",
-        "sourceReliability": 0.85,
+        "content": "CRITICAL ACCESS SEVERANCE: River arterial highway bridge center span collapsed into the gorge. Both concrete abutments sheared. Primary evacuation route completely impassable.",
+        "sourceReliability": 0.94,
         "freshness": 1.0,
         "consistency": 1.0
+      }
+    },
+    {
+      "id": "se-ev-05",
+      "time": 46000,
+      "type": "CONTRADICTION",
+      "target": "ch-secondary",
+      "severity": 0.80,
+      "message": "DANGEROUS CONTRADICTION: Civilian dispatch bulletin claims highway bridge is open with minor cracks, urging ambulance convoys to proceed.",
+      "payload": {
+        "id": "se-rep-02",
+        "sourceName": "MUNICIPAL TRAFFIC DISPATCH",
+        "sourceType": "CIVILIAN_BULLETIN",
+        "channelId": "ch-secondary",
+        "content": "STALE BULLETIN: Municipal traffic dispatch broadcast claims bridge is structurally intact for light emergency traffic (dispatchers relying on 30-minute-old pre-quake status).",
+        "sourceReliability": 0.32,
+        "freshness": 0.30,
+        "consistency": 0.20
+      }
+    },
+    {
+      "id": "se-ev-06",
+      "time": 56000,
+      "type": "BANDWIDTH_CONGESTION",
+      "target": "ch-secondary",
+      "severity": 0.70,
+      "message": "CELLULAR CONGESTION: Public network handover traffic overwhelms COW relay. Packet loss jumps to 28%."
+    },
+    {
+      "id": "se-ev-07",
+      "time": 72000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "Combat Engineer Detachment reports via low-band VHF tactical net.",
+      "payload": {
+        "id": "se-rep-03",
+        "sourceName": "COMBAT ENGINEER DETACHMENT",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-fallback",
+        "content": "Engineers on VHF channel: Confirming bridge is collapsed. We have launched an armored bridging vehicle to establish a provisional 40-meter bridge crossing at south gravel ford.",
+        "sourceReliability": 0.96,
+        "freshness": 1.0,
+        "consistency": 0.97
+      }
+    },
+    {
+      "id": "se-ev-08",
+      "time": 94000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "Recon Drone activates Long-Wave Infrared (Thermal) sensor payload.",
+      "payload": {
+        "id": "se-rep-04",
+        "sourceName": "THERMAL / OPTICAL RECON DRONE FLIGHT",
+        "sourceType": "SENSOR",
+        "channelId": "ch-fallback",
+        "content": "FLIR thermal imaging penetration confirmed through dust cloud: Pinpointed 14 distinct human body-heat anomalies beneath collapsed municipal complex. Relaying GPS coordinates to Sierra.",
+        "sourceReliability": 0.92,
+        "freshness": 1.0,
+        "consistency": 0.95
       }
     }
   ],
   "decisionWindows": [
     {
       "id": "se-dw-01",
-      "openAtTick": 48000,
-      "durationMs": 30000,
+      "openAtTick": 50000,
+      "durationMs": 35000,
       "urgency": "CRITICAL",
-      "situation": "Primary fiber dead. Scout Sierra indicates overpass is destroyed. Trainee must re-route response assets.",
-      "recommendedActions": ["ADAPT_PLAN", "ESCALATE", "VERIFY"]
+      "situation": "Primary fiber has sheared at the fault plane. Optical drone cameras are blinded by masonry dust. A stale municipal dispatch is directing ambulances toward a collapsed bridge span, while USAR Sierra on the ground confirms the bridge is destroyed. You must switch communications to reliable VHF tactical transceivers, halt ambulances from crossing the ruined bridge, re-route via the engineer ford detour, and switch drone sensors to Thermal IR.",
+      "recommendedActions": ["ADAPT_PLAN", "SWITCH_INFORMATION_CHANNEL", "VERIFY"]
     }
   ],
   "scoringWeights": {
-    "decisionQuality": 0.25,
+    "decisionQuality": 0.30,
     "timeliness": 0.15,
-    "informationDiscipline": 0.20,
-    "sourceEvaluation": 0.10,
+    "informationDiscipline": 0.15,
+    "sourceEvaluation": 0.15,
     "communicationResilience": 0.15,
     "coordination": 0.05,
-    "riskManagement": 0.05,
-    "adaptability": 0.05
+    "riskManagement": 0.025,
+    "adaptability": 0.025
   },
   "sources": [
     {
-      "name": "USGS Earthquake Catalog / FDSN Event Web Service",
+      "name": "USGS Earthquake Hazards Program — ShakeMap Instrumental Intensity",
       "organization": "United States Geological Survey",
-      "url": "https://earthquake.usgs.gov/fdsnws/event/1/",
-      "usage": "Calibrates sudden infrastructure disruption following ground displacement"
+      "url": "https://earthquake.usgs.gov/data/shakemap/",
+      "usage": "Calibrates ground motion acceleration (PGA > 0.8g), subterranean conduit shear, and airborne masonry dust attenuation"
+    },
+    {
+      "name": "USGS / EERI Technical Post-Earthquake Infrastructure Survivability Study",
+      "organization": "Earthquake Engineering Research Institute & USGS",
+      "url": "https://www.eeri.org/",
+      "usage": "Calibrates critical infrastructure lifeline failures (bridge collapse, fiber severance, cellular traffic congestion)"
     }
   ]
 }

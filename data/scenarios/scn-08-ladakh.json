@@ -1,0 +1,250 @@
+{
+  "id": "SCN-08",
+  "version": "1.0.0",
+  "title": "LADAKH // HIGH-ALTITUDE PASS",
+  "historicalBasis": "High-Altitude Himalayan Crisis Telemetry (Zojila / Siachen sector analog). Calibrated with DRDO SASE (Snow and Avalanche Study Establishment) and public military communications field studies in sub-zero alpine environments (-35°C battery capacity collapse, 5,500m steep ridgeline RF knife-edge diffraction, and satellite look-angle line-of-sight shadowing).",
+  "syntheticDisclaimer": "Command entities, scenario injects, and tactical units are synthetic training constructs.",
+  "difficulty": "EXPERT",
+  "seed": 808,
+  "durationMs": 180000,
+  "stalenessThresholdSeconds": 30,
+  "environment": {
+    "type": "SEVERE_WEATHER",
+    "severity": 0.94,
+    "weatherDescription": "Severe blizzard at 5,400m pass; -35°C temperature, 90 km/h squalls, heavy knife-edge mountain RF shadowing.",
+    "visibilityKm": 0.9
+  },
+  "entities": [
+    {
+      "id": "node-cmd-leh",
+      "name": "FORWARD MOUNTAIN COMMAND (LEH POST)",
+      "type": "COMMAND_NODE",
+      "coordinates": [77.5750, 34.1520],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 1.0,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-relay-pass",
+      "name": "MOUNTAIN RIDGE RELAY 04 (PASS CREST)",
+      "type": "RELAY_NODE",
+      "coordinates": [77.6100, 34.1850],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.94,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-patrol-sierra",
+      "name": "HIGH-ALTITUDE RECON PATROL SIERRA",
+      "type": "FIELD_TEAM",
+      "coordinates": [77.6400, 34.2250],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-primary",
+      "health": 0.92,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-rescue-avac",
+      "name": "AVALANCHE SEARCH & RESCUE DETACHMENT",
+      "type": "FIELD_TEAM",
+      "coordinates": [77.6800, 34.2100],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-secondary",
+      "health": 0.95,
+      "lastContactTick": 0
+    },
+    {
+      "id": "node-aid-post",
+      "name": "VALLEY FORWARD AID & EVAC POST",
+      "type": "SUPPORT_NODE",
+      "coordinates": [77.5300, 34.1400],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-fallback",
+      "health": 1.0,
+      "lastContactTick": 0
+    },
+    {
+      "id": "team-air-cheetah",
+      "name": "HIGH-ALTITUDE AIR DETACHMENT (CHEETAH)",
+      "type": "OBSERVATION_NODE",
+      "coordinates": [77.5900, 34.1950],
+      "status": "NOMINAL",
+      "activeChannelId": "ch-secondary",
+      "health": 0.90,
+      "lastContactTick": 0
+    }
+  ],
+  "communicationChannels": [
+    {
+      "id": "ch-primary",
+      "name": "HIGH-ALTITUDE UHF MOUNTAIN RF MESH",
+      "type": "PRIMARY",
+      "availability": 0.92,
+      "packetLoss": 0.04,
+      "latencyMs": 75,
+      "bandwidthFactor": 0.92,
+      "channelQuality": 0.88,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-secondary",
+      "name": "MIL-SATCOM GEOSTATIONARY LINK",
+      "type": "SECONDARY",
+      "availability": 0.82,
+      "packetLoss": 0.12,
+      "latencyMs": 520,
+      "bandwidthFactor": 0.70,
+      "channelQuality": 0.74,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    },
+    {
+      "id": "ch-fallback",
+      "name": "COLD-HARDENED ARMORED WIRE-LINE",
+      "type": "FALLBACK",
+      "availability": 0.99,
+      "packetLoss": 0.00,
+      "latencyMs": 18,
+      "bandwidthFactor": 0.99,
+      "channelQuality": 0.98,
+      "status": "NORMAL",
+      "lastSuccessfulContactTick": 0
+    }
+  ],
+  "initialConditions": {
+    "commHealth": 0.92,
+    "infoIntegrity": 0.90,
+    "initialDegradationState": "NORMAL"
+  },
+  "events": [
+    {
+      "id": "lad-ev-01",
+      "time": 8000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-primary",
+      "message": "Routine high-altitude weather telemetry: Wind 45 knots, ambient temp -28°C.",
+      "payload": {
+        "id": "lad-rep-00",
+        "sourceName": "MOUNTAIN RIDGE RELAY 04",
+        "sourceType": "SENSOR",
+        "channelId": "ch-primary",
+        "content": "Relay solar-battery buffer stable at 90%. Pass corridor transit clear of snow drift.",
+        "sourceReliability": 0.95,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "id": "lad-ev-02",
+      "time": 20000,
+      "type": "WEATHER_SHIFT",
+      "severity": 0.92,
+      "message": "BLIZZARD INGRESS: Temperatures plummet to -38°C. Lithium battery chemical reaction rates collapse 65% across relay masts."
+    },
+    {
+      "id": "lad-ev-03",
+      "time": 32000,
+      "type": "RELAY_FAILURE",
+      "target": "ch-primary",
+      "severity": 1.0,
+      "message": "TOTAL POWER EXHAUSTION: Mountain Ridge Relay 04 battery bank frozen. Primary UHF mountain mesh offline."
+    },
+    {
+      "id": "lad-ev-04",
+      "time": 44000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-secondary",
+      "message": "Recon Patrol Sierra reports massive avalanche blocking main military transit axis.",
+      "payload": {
+        "id": "lad-rep-01",
+        "sourceName": "HIGH-ALTITUDE RECON PATROL SIERRA",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-secondary",
+        "content": "CRITICAL TRANSIT BLOCKAGE: Class 4 wet-slab avalanche triggered from north ridge. Highway buried under 6 meters of hard-packed snow for 400m.",
+        "sourceReliability": 0.94,
+        "freshness": 1.0,
+        "consistency": 1.0
+      }
+    },
+    {
+      "id": "lad-ev-05",
+      "time": 52000,
+      "type": "CONTRADICTION",
+      "target": "ch-secondary",
+      "severity": 0.85,
+      "message": "CONTRADICTION: Automated acoustic geophone sensor transmits false clearing signal, conflicting with Sierra's visual.",
+      "payload": {
+        "id": "lad-rep-02",
+        "sourceName": "PASS ACOUSTIC SEISMOMETER 02",
+        "sourceType": "SENSOR",
+        "channelId": "ch-secondary",
+        "content": "STALE SENSOR: Pass acoustic sensor registers vibration subsided and auto-clears alert (sensor frozen solid in ice pack; zero vibration detected due to ice casing).",
+        "sourceReliability": 0.35,
+        "freshness": 0.40,
+        "consistency": 0.25
+      }
+    },
+    {
+      "id": "lad-ev-06",
+      "time": 64000,
+      "type": "DROPOUT",
+      "target": "ch-secondary",
+      "severity": 0.90,
+      "message": "SATELLITE SHADOWING: Steep 5,800m granite ridge intercepts low-angle geostationary satellite beam during patrol movement."
+    },
+    {
+      "id": "lad-ev-07",
+      "time": 82000,
+      "type": "REPORT_INCOMING",
+      "target": "ch-fallback",
+      "message": "Valley Forward Aid Post establishes direct connection over cold-hardened wire-line.",
+      "payload": {
+        "id": "lad-rep-03",
+        "sourceName": "VALLEY FORWARD AID & EVAC POST",
+        "sourceType": "FIELD_REPORT",
+        "channelId": "ch-fallback",
+        "content": "Wire-line link clear: Avalanche Rescue Detachment has reached wire terminal. Confirming road blocked; requesting tracked snow-cat convoy redirect to secondary valley.",
+        "sourceReliability": 0.98,
+        "freshness": 1.0,
+        "consistency": 0.97
+      }
+    }
+  ],
+  "decisionWindows": [
+    {
+      "id": "lad-dw-01",
+      "openAtTick": 54000,
+      "durationMs": 35000,
+      "urgency": "CRITICAL",
+      "situation": "Relay 04 has frozen dead and ridge terrain is shadowing SatCom uplinks. An ice-fouled sensor falsely claims the pass is open while Patrol Sierra visually confirms a 6-meter avalanche blockage. You must evaluate sensor vs scout reliability, switch to direct cold-hardened field wire-lines, and redirect supply convoys to the secondary valley bypass.",
+      "recommendedActions": ["SWITCH_INFORMATION_CHANNEL", "ADAPT_PLAN", "RECONFIGURE_TEAM_COORDINATION"]
+    }
+  ],
+  "scoringWeights": {
+    "decisionQuality": 0.30,
+    "timeliness": 0.15,
+    "informationDiscipline": 0.15,
+    "sourceEvaluation": 0.15,
+    "communicationResilience": 0.15,
+    "coordination": 0.05,
+    "riskManagement": 0.025,
+    "adaptability": 0.025
+  },
+  "sources": [
+    {
+      "name": "DRDO Snow and Avalanche Study Establishment Technical Reports",
+      "organization": "Defence Research and Development Organisation (DRDO)",
+      "url": "https://www.drdo.gov.in/",
+      "usage": "Calibrates sub-zero battery depletion curves, avalanche mass displacement, and acoustic sensor ice-fouling failure modes"
+    },
+    {
+      "name": "High-Altitude Military Communications & RF Shadowing Studies",
+      "organization": "Journal of Defense Modeling and Simulation",
+      "url": "https://journals.sagepub.com/",
+      "usage": "Calibrates knife-edge diffraction over steep glaciated ridges and low-look-angle geostationary satellite line-of-sight blockage"
+    }
+  ]
+}

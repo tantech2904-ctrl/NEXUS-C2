@@ -21,7 +21,7 @@ export const Footer: React.FC = () => {
   const latestLog = eventLog.length > 0 ? eventLog[0] : null;
 
   return (
-    <footer className="bg-[#141618] border-t border-[#2a2d30] px-4 py-2 flex flex-col md:flex-row items-center justify-between gap-3 text-xs font-mono select-none z-30">
+    <footer className="bg-[#141618] border-t border-[#2a2d30] px-4 py-2 flex flex-col md:flex-row items-center justify-between gap-3 text-xs font-mono select-none z-30 print:hidden">
       {/* Simulation Controls */}
       <div className="flex items-center gap-2">
         <button

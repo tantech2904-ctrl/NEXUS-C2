@@ -134,5 +134,57 @@
     "usedInScenarios": ["SCN-06"],
     "category": "SYNTHETIC",
     "note": "Flagship demonstration scenario showcasing the Information Confidence Engine and Decision Replay."
+  },
+  {
+    "id": "SRC-TOPOGRAPHIC-TERRAIN",
+    "sourceName": "NEXUS-C2 Offline Topographic Training Cartography & Hypsometric Model",
+    "organization": "NEXUS Cartographic Engine & USGS 1:50,000 Topographic Specifications",
+    "sourceURL": "local://nexus-c2/maps/nexus-training",
+    "publicationDate": "2026-10-04",
+    "purpose": "Deterministic offline multi-elevation hypsometric shading, contour line derivation (25m/100m index intervals), natural hydrography, and military grid reference overlay",
+    "license": "Public Training Artifact / Synthetic Cartography",
+    "processingMethod": "Algorithmic multi-octave gradient synthesis, analytical hillshading (315° illumination azimuth), marching-isoline contour vectorization, and natural hydrographic valley tracing",
+    "usedInScenarios": ["SCN-01", "SCN-02", "SCN-03", "SCN-04", "SCN-05", "SCN-06", "SCN-07", "SCN-08", "SCN-09"],
+    "category": "MAP_DATA",
+    "note": "Fully offline, deterministic synthetic terrain for realistic tactical command training without external network or tile-server dependencies."
+  },
+  {
+    "id": "SRC-IAEA-FUKUSHIMA",
+    "sourceName": "IAEA Technical Report on the Fukushima Daiichi Nuclear Accident",
+    "organization": "International Atomic Energy Agency",
+    "sourceURL": "https://www.iaea.org/publications/10962/the-fukushima-daiichi-accident",
+    "publicationDate": "2015-08-31",
+    "purpose": "Calibration of total station blackout, SCADA optical fiber severance, and radiation sensor buffer freezing",
+    "license": "Public International Report",
+    "processingMethod": "Multi-tier failure timeline normalization: AC power loss, flooded generator backup, and contradictory field surveys",
+    "usedInScenarios": ["SCN-07"],
+    "category": "HISTORICAL",
+    "note": "Calibrates decision training under conflicting automated dosimeter telemetry and mobile recon surveys."
+  },
+  {
+    "id": "SRC-DRDO-LADAKH",
+    "sourceName": "DRDO SASE High-Altitude Cryospheric Military Telecommunications Studies",
+    "organization": "Defence Research and Development Organisation (DRDO)",
+    "sourceURL": "https://www.drdo.gov.in/",
+    "publicationDate": "2021-11-15",
+    "purpose": "Sub-zero battery capacity collapse (-35°C), glaciated ridge RF knife-edge diffraction, and satellite look-angle shadowing",
+    "license": "Public Scientific Documentation",
+    "processingMethod": "Empirical RF attenuation modeling across alpine relief and frozen acoustic geophone sensor failure modes",
+    "usedInScenarios": ["SCN-08"],
+    "category": "HISTORICAL",
+    "note": "Calibrates extreme mountain pass decision-making when primary microwave relays freeze dead."
+  },
+  {
+    "id": "SRC-CISA-SPOOF",
+    "sourceName": "CISA Industrial Control Systems Cyber Disruption Advisories",
+    "organization": "Cybersecurity and Infrastructure Security Agency",
+    "sourceURL": "https://www.cisa.gov/ics",
+    "publicationDate": "2023-04-10",
+    "purpose": "SCADA telemetry spoofing, replay packet injection, and false dashboard indicator patterns",
+    "license": "Public Domain (U.S. Government)",
+    "processingMethod": "Derivation of timestamp drift curves and false dashboard green-status data poisoning",
+    "usedInScenarios": ["SCN-09"],
+    "category": "HISTORICAL",
+    "note": "Calibrates hybrid warfare decision scenarios requiring commanders to prioritize physical observation over compromised digital telemetry."
   }
 ]
