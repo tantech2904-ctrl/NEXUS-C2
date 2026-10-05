@@ -83,10 +83,13 @@ echo ===========================================================================
 echo   NEXUS-C2 IS OPERATIONAL!
 echo.
 echo   Command Console:   http://localhost:3000/console
-echo   Scenario Library:  http://localhost:3000/scenarios
+echo   Team LAN Station:  http://localhost:3000/team
 echo   Instructor Room:   http://localhost:3000/instructor
+echo   Scenario Library:  http://localhost:3000/scenarios
 echo   Data Provenance:   http://localhost:3000/data-sources
 echo.
+echo   * LAN MULTIPLAYER DRILL: Other laptops/phones on same Wi-Fi can join
+echo     by navigating to http://^<YOUR-LAN-IP^>:3000/team (find in LAN briefing).
 echo   * The interactive 3-Minute Site Tour will open automatically for evaluators.
 echo   * Press F11 anytime to toggle fullscreen display.
 echo   * To shut down: Close the 'NEXUS-C2 Simulator Server' command window.

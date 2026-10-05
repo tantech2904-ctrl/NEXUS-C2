@@ -7,24 +7,36 @@ import {
   TeamMember,
   TeamMessage,
   TeamProposal,
+  LanPeer,
+  LanHostInfo,
+  LanDrillSyncPayload,
 } from '@/types/multiplayer';
 import { DecisionAction } from '@/types/decision';
 
 export interface MultiplayerStore {
   myRole: TeamRole;
+  peerId: string;
   members: Record<TeamRole, TeamMember>;
   messages: TeamMessage[];
   activeProposal: TeamProposal | null;
   proposalsHistory: TeamProposal[];
   isSyntheticBotsActive: boolean;
+  lanHostInfo: LanHostInfo | null;
+  connectedPeers: LanPeer[];
+  isLanConnected: boolean;
+  isLanSyncing: boolean;
 
   setMyRole: (role: TeamRole) => void;
-  sendTeamMessage: (content: string, priority?: 'ROUTINE' | 'PRIORITY' | 'FLASH', currentTick?: number) => void;
-  proposeTeamAction: (action: DecisionAction, rationale: string, currentTick: number) => void;
-  voteProposal: (proposalId: string, role: TeamRole, vote: 'CONCUR' | 'OBJECT') => void;
+  claimLanRole: (role: TeamRole) => Promise<boolean>;
+  sendTeamMessage: (content: string, priority?: 'ROUTINE' | 'PRIORITY' | 'FLASH', currentTick?: number) => Promise<void>;
+  proposeTeamAction: (action: DecisionAction, rationale: string, currentTick: number) => Promise<void>;
+  voteProposal: (proposalId: string, role: TeamRole, vote: 'CONCUR' | 'OBJECT') => Promise<void>;
   updateMemberStatus: (role: TeamRole, status: TeamMember['status']) => void;
   syncTickBots: (tick: number, commHealth: number) => void;
   resetTeamSession: () => void;
+  fetchHostInfo: () => Promise<LanHostInfo | null>;
+  startLanSync: () => void;
+  stopLanSync: () => void;
 }
 
 const DEFAULT_MEMBERS: Record<TeamRole, TeamMember> = {
@@ -118,7 +130,26 @@ if (typeof window !== 'undefined' && 'BroadcastChannel' in window) {
   }
 }
 
+// Helper to retrieve or create a stable peer ID for this browser tab/device
+function getOrCreatePeerId(): string {
+  if (typeof window === 'undefined') return 'peer-server';
+  try {
+    let id = sessionStorage.getItem('nexus_lan_peer_id');
+    if (!id) {
+      id = `peer-${Math.random().toString(36).substring(2, 8)}-${Date.now().toString(36).substring(4)}`;
+      sessionStorage.setItem('nexus_lan_peer_id', id);
+    }
+    return id;
+  } catch {
+    return `peer-${Math.random().toString(36).substring(2, 8)}`;
+  }
+}
+
+let syncIntervalTimer: NodeJS.Timeout | null = null;
+
 export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
+  const initialPeerId = getOrCreatePeerId();
+
   // Listen for broadcast messages across tabs
   if (globalBroadcastChannel) {
     globalBroadcastChannel.onmessage = (event) => {
@@ -139,7 +170,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
           const nextVotes = { ...current.votes, [role]: vote };
           const concurs = Object.values(nextVotes).filter((v) => v === 'CONCUR').length;
           const totalRoles = 4;
-          const consensus = (concurs / totalRoles) * 100;
+          const consensus = Math.round((concurs / totalRoles) * 100);
           set({
             activeProposal: {
               ...current,
@@ -153,13 +184,87 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
     };
   }
 
+  // Core API sync helper
+  const performLanSync = async () => {
+    try {
+      const state = get();
+      const myMember = state.members[state.myRole];
+
+      const res = await fetch('/api/multiplayer/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'HEARTBEAT',
+          peerId: state.peerId,
+          callsign: myMember?.callsign || 'OPERATOR',
+          role: state.myRole,
+          domain: myMember?.domain || 'JOINT_HQ',
+          payload: {
+            isHost: state.myRole === 'TOC_LEAD_COMMANDER',
+          },
+        }),
+      });
+
+      if (!res.ok) return;
+      const data: LanDrillSyncPayload = await res.json();
+
+      set((curr) => {
+        // Merge messages: keep all existing, add any new from remote
+        const existingIds = new Set(curr.messages.map((m) => m.id));
+        const mergedMessages = [...curr.messages];
+        for (const remoteMsg of data.messages) {
+          if (!existingIds.has(remoteMsg.id)) {
+            mergedMessages.push(remoteMsg);
+            existingIds.add(remoteMsg.id);
+          }
+        }
+
+        // Sort messages by timestamp
+        mergedMessages.sort((a, b) => a.timestampTick - b.timestampTick);
+
+        // Update member claims
+        const nextMembers = { ...curr.members };
+        for (const r of Object.keys(data.members) as TeamRole[]) {
+          const remoteMember = data.members[r];
+          nextMembers[r] = {
+            ...nextMembers[r],
+            claimedByPeerId: remoteMember.claimedByPeerId,
+            claimedByIp: remoteMember.claimedByIp,
+            isLocalPlayer: r === curr.myRole,
+          };
+        }
+
+        // If more than 1 human peer is connected on LAN, disable synthetic bots
+        const activeHumanPeers = data.peers.filter((p) => p.peerId !== curr.peerId);
+        const shouldDisableBots = activeHumanPeers.length > 0;
+
+        return {
+          connectedPeers: data.peers,
+          messages: mergedMessages,
+          activeProposal: data.activeProposal || curr.activeProposal,
+          members: nextMembers,
+          isLanConnected: true,
+          isSyntheticBotsActive: shouldDisableBots ? false : curr.isSyntheticBotsActive,
+        };
+      });
+    } catch {
+      // Offline fallback: don't crash, retain local broadcast channel
+      set({ isLanConnected: false });
+    }
+  };
+
   return {
     myRole: 'TOC_LEAD_COMMANDER',
+    peerId: initialPeerId,
     members: DEFAULT_MEMBERS,
     messages: INITIAL_MESSAGES,
     activeProposal: null,
     proposalsHistory: [],
     isSyntheticBotsActive: true,
+    lanHostInfo: null,
+    connectedPeers: [],
+    isLanConnected: false,
+    isLanSyncing: false,
 
     setMyRole: (role: TeamRole) => {
       set((state) => {
@@ -174,7 +279,38 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
       });
     },
 
-    sendTeamMessage: (content: string, priority = 'ROUTINE', currentTick = 0) => {
+    claimLanRole: async (role: TeamRole) => {
+      const state = get();
+      // Optimistic update
+      state.setMyRole(role);
+
+      try {
+        const myMember = state.members[role];
+        const res = await fetch('/api/multiplayer/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'CLAIM_ROLE',
+            peerId: state.peerId,
+            callsign: myMember.callsign,
+            role,
+            domain: myMember.domain,
+            payload: { role },
+          }),
+        });
+
+        if (res.ok) {
+          const data: LanDrillSyncPayload = await res.json();
+          set({ connectedPeers: data.peers, members: data.members, isLanConnected: true });
+          return true;
+        }
+      } catch (err) {
+        console.warn('LAN claim role error, falling back locally:', err);
+      }
+      return false;
+    },
+
+    sendTeamMessage: async (content: string, priority = 'ROUTINE', currentTick = 0) => {
       const state = get();
       const myMember = state.members[state.myRole];
       let msgStatus: TeamMessage['status'] = 'DELIVERED';
@@ -194,6 +330,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
         priority,
         domain: myMember.domain,
         status: msgStatus,
+        peerId: state.peerId,
       };
 
       set((prev) => ({ messages: [...prev.messages, newMsg] }));
@@ -201,9 +338,30 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
       if (globalBroadcastChannel) {
         globalBroadcastChannel.postMessage({ type: 'NEW_MESSAGE', message: newMsg });
       }
+
+      // Sync via LAN API
+      try {
+        await fetch('/api/multiplayer/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'SEND_MESSAGE',
+            peerId: state.peerId,
+            callsign: myMember.callsign,
+            role: state.myRole,
+            domain: myMember.domain,
+            payload: {
+              content: content.trim(),
+              priority,
+            },
+          }),
+        });
+      } catch {
+        // Safe offline fallback
+      }
     },
 
-    proposeTeamAction: (action: DecisionAction, rationale: string, currentTick: number) => {
+    proposeTeamAction: async (action: DecisionAction, rationale: string, currentTick: number) => {
       const state = get();
       const proposal: TeamProposal = {
         id: `prop-${Date.now()}`,
@@ -224,14 +382,32 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
         globalBroadcastChannel.postMessage({ type: 'NEW_PROPOSAL', proposal });
       }
 
-      // If synthetic bots are active, have other roles vote after a brief delay
+      // Sync to LAN server
+      try {
+        await fetch('/api/multiplayer/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'PROPOSE_ACTION',
+            peerId: state.peerId,
+            role: state.myRole,
+            payload: {
+              action,
+              rationale,
+            },
+          }),
+        });
+      } catch {
+        // Safe offline fallback
+      }
+
+      // If synthetic bots are active (no external human players on LAN), simulate team votes
       if (state.isSyntheticBotsActive) {
         setTimeout(() => {
           get().voteProposal(proposal.id, 'LAND_COMMANDER', 'CONCUR');
         }, 1200);
 
         setTimeout(() => {
-          // If action is SWITCH_INFORMATION_CHANNEL or REQUEST_UPDATE, Air concurs; otherwise pauses
           get().voteProposal(proposal.id, 'AIR_RECON_UAS', 'CONCUR');
         }, 2200);
 
@@ -241,7 +417,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
       }
     },
 
-    voteProposal: (proposalId: string, role: TeamRole, vote: 'CONCUR' | 'OBJECT') => {
+    voteProposal: async (proposalId: string, role: TeamRole, vote: 'CONCUR' | 'OBJECT') => {
       const current = get().activeProposal;
       if (!current || current.id !== proposalId) return;
 
@@ -267,6 +443,25 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
           role,
           vote,
         });
+      }
+
+      // Sync to LAN server
+      try {
+        await fetch('/api/multiplayer/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'VOTE_PROPOSAL',
+            peerId: get().peerId,
+            role,
+            payload: {
+              proposalId,
+              vote,
+            },
+          }),
+        });
+      } catch {
+        // Offline fallback
       }
     },
 
@@ -356,6 +551,49 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
         activeProposal: null,
         proposalsHistory: [],
       });
+      // Trigger LAN reset
+      fetch('/api/multiplayer/sync', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'RESET_DRILL' }),
+      }).catch(() => {});
+    },
+
+    fetchHostInfo: async () => {
+      try {
+        const res = await fetch('/api/multiplayer/host-info');
+        if (res.ok) {
+          const info: LanHostInfo = await res.json();
+          set({ lanHostInfo: info });
+          return info;
+        }
+      } catch (err) {
+        console.warn('Failed to fetch host info:', err);
+      }
+      return null;
+    },
+
+    startLanSync: () => {
+      if (syncIntervalTimer) return;
+      set({ isLanSyncing: true });
+
+      // Immediate first sync
+      performLanSync();
+      get().fetchHostInfo();
+
+      // Poll every 800ms
+      syncIntervalTimer = setInterval(() => {
+        performLanSync();
+      }, 800);
+    },
+
+    stopLanSync: () => {
+      if (syncIntervalTimer) {
+        clearInterval(syncIntervalTimer);
+        syncIntervalTimer = null;
+      }
+      set({ isLanSyncing: false });
     },
   };
 });
+

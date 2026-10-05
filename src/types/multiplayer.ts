@@ -16,6 +16,8 @@ export interface TeamMember {
   status: 'NOMINAL' | 'DEGRADED_NET' | 'PARTITIONED' | 'JAMMED';
   isLocalPlayer: boolean;
   activeObservationsCount: number;
+  claimedByPeerId?: string;
+  claimedByIp?: string;
 }
 
 export interface TeamMessage {
@@ -27,6 +29,7 @@ export interface TeamMessage {
   priority: 'ROUTINE' | 'PRIORITY' | 'FLASH';
   domain: OperationalDomain;
   status: 'DELIVERED' | 'DELAYED' | 'JAMMED' | 'DROPPED';
+  peerId?: string;
 }
 
 export interface TeamProposal {
@@ -38,4 +41,39 @@ export interface TeamProposal {
   votes: Partial<Record<TeamRole, 'CONCUR' | 'OBJECT' | 'PENDING'>>;
   consensusPercentage: number;
   status: 'PROPOSED' | 'CONSENSUS_REACHED' | 'DISCORDANT' | 'COMMITTED';
+}
+
+export interface LanPeer {
+  peerId: string;
+  callsign: string;
+  role: TeamRole;
+  domain: OperationalDomain;
+  ip: string;
+  lastSeen: number;
+  isHost: boolean;
+  pingMs?: number;
+}
+
+export interface LanHostInfo {
+  hostIps: string[];
+  primaryIp: string;
+  port: number;
+  joinUrl: string;
+  hostName: string;
+  interfaces?: { name: string; ip: string; isVirtual?: boolean }[];
+}
+
+export interface LanDrillSyncPayload {
+  drillId: string;
+  scenarioId: string;
+  tick: number;
+  isRunning: boolean;
+  commHealth: number;
+  infoIntegrity: number;
+  overallDegradationState: string;
+  peers: LanPeer[];
+  messages: TeamMessage[];
+  activeProposal: TeamProposal | null;
+  members: Record<TeamRole, TeamMember>;
+  updatedAt: number;
 }

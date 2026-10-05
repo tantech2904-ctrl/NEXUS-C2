@@ -7,6 +7,7 @@ import { TeamRole, OperationalDomain, TeamMessage } from '@/types/multiplayer';
 import { DecisionAction } from '@/types/decision';
 import { tacticalAudio } from '@/lib/audio';
 import { formatTime } from '@/lib/utils';
+import { LanBriefingModal } from './LanBriefingModal';
 import {
   Users,
   Shield,
@@ -22,6 +23,9 @@ import {
   Vote,
   Layers,
   Lock,
+  Wifi,
+  QrCode,
+  Share2,
 } from 'lucide-react';
 
 export const MultiplayerTeamStation: React.FC = () => {
@@ -31,10 +35,17 @@ export const MultiplayerTeamStation: React.FC = () => {
     messages,
     activeProposal,
     setMyRole,
+    claimLanRole,
     sendTeamMessage,
     proposeTeamAction,
     voteProposal,
     syncTickBots,
+    connectedPeers,
+    isLanConnected,
+    lanHostInfo,
+    startLanSync,
+    stopLanSync,
+    peerId,
   } = useMultiplayerStore();
 
   const { tick, commHealth, activeDecisionWindow, submitDecision } = useSimulationStore();
@@ -45,6 +56,7 @@ export const MultiplayerTeamStation: React.FC = () => {
   const [proposalAction, setProposalAction] = useState<DecisionAction>('SWITCH_INFORMATION_CHANNEL');
   const [proposalRationale, setProposalRationale] = useState('');
   const [isProposeModalOpen, setIsProposeModalOpen] = useState(false);
+  const [isLanModalOpen, setIsLanModalOpen] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
@@ -57,6 +69,14 @@ export const MultiplayerTeamStation: React.FC = () => {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages.length]);
+
+  // Start LAN synchronization loop on mount and clean up on unmount
+  useEffect(() => {
+    startLanSync();
+    return () => {
+      stopLanSync();
+    };
+  }, [startLanSync, stopLanSync]);
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,9 +156,28 @@ export const MultiplayerTeamStation: React.FC = () => {
             LAND &bull; AIR &bull; CYBER &bull; EW
           </span>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="w-2 h-2 rounded-full bg-[#2ecc71] animate-pulse" />
-          <span className="text-[10px] text-[#8a9099]">LOCAL BROADCAST MESH ACTIVE</span>
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center gap-1.5 bg-[#0d0f10] px-2 py-1 rounded border border-[#2a2d30]">
+            <span
+              className={`w-2 h-2 rounded-full ${
+                isLanConnected ? 'bg-[#2ecc71] animate-pulse' : 'bg-[#d4860a]'
+              }`}
+            />
+            <span className="text-[10px] text-[#8a9099]">
+              {isLanConnected
+                ? `LAN SYNCED (${connectedPeers.length || 1} OPERATOR${connectedPeers.length === 1 ? '' : 'S'})`
+                : 'LOCAL STANDALONE'}
+            </span>
+          </div>
+
+          <button
+            onClick={() => setIsLanModalOpen(true)}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-cyan-950/80 hover:bg-cyan-900 border border-cyan-500/50 text-cyan-300 font-bold text-[10px] tracking-wide transition shadow-sm"
+          >
+            <Wifi className="w-3 h-3 text-cyan-400 animate-pulse" />
+            <QrCode className="w-3 h-3 text-cyan-400" />
+            <span>LAN MULTIPLAYER DRILL</span>
+          </button>
         </div>
       </div>
 
@@ -149,6 +188,7 @@ export const MultiplayerTeamStation: React.FC = () => {
           const cfg = roleConfig[role];
           const member = members[role];
           const isSelected = myRole === role;
+          const isClaimedByOther = member.claimedByPeerId && member.claimedByPeerId !== peerId;
           const Icon = cfg.icon;
 
           return (
@@ -156,16 +196,27 @@ export const MultiplayerTeamStation: React.FC = () => {
               key={role}
               onClick={() => {
                 tacticalAudio.playClick();
-                setMyRole(role);
+                claimLanRole(role);
               }}
               className={`flex items-center gap-1.5 px-2.5 py-1 rounded border text-[11px] transition-all ${
                 isSelected
-                  ? 'bg-[#1c1f21] border-[#4fc3d0] text-[#e8eaec] shadow-[0_0_8px_rgba(79,195,208,0.3)]'
+                  ? 'bg-[#1c1f21] border-[#4fc3d0] text-[#e8eaec] shadow-[0_0_8px_rgba(79,195,208,0.3)] ring-1 ring-cyan-500/40'
+                  : isClaimedByOther
+                  ? 'bg-[#141618] border-[#2a2d30] text-[#8a9099] opacity-75'
                   : 'bg-[#141618] border-[#2a2d30] text-[#8a9099] hover:text-[#e8eaec] hover:border-[#4fc3d0]/30'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
               <span className="font-semibold">{cfg.label}</span>
+              {isSelected ? (
+                <span className="text-[9px] px-1 py-0.2 rounded font-bold text-cyan-400 bg-cyan-950/80 border border-cyan-500/40">
+                  YOU
+                </span>
+              ) : isClaimedByOther ? (
+                <span className="text-[9px] px-1 py-0.2 rounded font-bold text-amber-400 bg-amber-950/60 border border-amber-600/30">
+                  {member.claimedByIp ? member.claimedByIp.split('.').slice(-2).join('.') : 'PEER'}
+                </span>
+              ) : null}
               <span
                 className={`text-[9px] px-1 py-0.2 rounded font-bold ${
                   member.status === 'NOMINAL'
@@ -511,6 +562,12 @@ export const MultiplayerTeamStation: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* LAN Drill Briefing & Joining Room Modal */}
+      <LanBriefingModal
+        isOpen={isLanModalOpen}
+        onClose={() => setIsLanModalOpen(false)}
+      />
     </div>
   );
 };
