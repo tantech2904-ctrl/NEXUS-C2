@@ -10,8 +10,28 @@ import { evaluateDecision } from '@/lib/simulation/scoring';
 import { createDecisionSnapshot } from '@/lib/simulation/replay';
 import { useSessionStore } from './sessionStore';
 
+import scn01 from '@/../data/scenarios/scn-01-maria.json';
+import scn02 from '@/../data/scenarios/scn-02-anatolia.json';
+import scn03 from '@/../data/scenarios/scn-03-chile.json';
+import scn04 from '@/../data/scenarios/scn-04-storm-corridor.json';
+import scn05 from '@/../data/scenarios/scn-05-seismic-window.json';
 import scn06 from '@/../data/scenarios/scn-06-blackout.json';
+import scn07 from '@/../data/scenarios/scn-07-fukushima.json';
+import scn08 from '@/../data/scenarios/scn-08-ladakh.json';
+import scn09 from '@/../data/scenarios/scn-09-cyber-spoof.json';
 import { validateScenario } from '@/lib/simulation/scenario';
+
+const SCENARIO_MAP: Record<string, any> = {
+  'SCN-01': scn01,
+  'SCN-02': scn02,
+  'SCN-03': scn03,
+  'SCN-04': scn04,
+  'SCN-05': scn05,
+  'SCN-06': scn06,
+  'SCN-07': scn07,
+  'SCN-08': scn08,
+  'SCN-09': scn09,
+};
 
 export interface SimulationStore {
   scenario: Scenario | null;
@@ -42,6 +62,9 @@ export interface SimulationStore {
   advanceTick: (deltaMs: number) => void;
   injectEvent: (inject: ScenarioInject) => void;
   submitDecision: (action: DecisionAction, rationale: string) => void;
+  isLanClientSyncing: boolean;
+  setIsLanClientSyncing: (syncing: boolean) => void;
+  applyRemoteSync: (data: any) => void;
 }
 
 const buildInitialScenarioData = (rawScenario: any) => {
@@ -597,5 +620,49 @@ export const useSimulationStore = create<SimulationStore>((set, get) => ({
       eventLog: newLog,
       activeDecisionWindow: null,
     });
+  },
+
+  isLanClientSyncing: false,
+  setIsLanClientSyncing: (syncing: boolean) => set({ isLanClientSyncing: syncing }),
+
+  applyRemoteSync: (data: any) => {
+    if (!data) return;
+    const current = get();
+
+    // 1. If scenarioId differs, load that scenario
+    if (data.scenarioId && current.scenario?.id !== data.scenarioId) {
+      const rawScn = SCENARIO_MAP[data.scenarioId];
+      if (rawScn) {
+        const validated = validateScenario(rawScn);
+        current.loadScenario(validated);
+      }
+    }
+
+    // 2. Synchronize clock, telemetry, degradation, and decision window
+    const updates: Partial<SimulationStore> = {
+      isLanClientSyncing: true,
+    };
+
+    if (typeof data.tick === 'number') updates.tick = data.tick;
+    if (typeof data.isRunning === 'boolean') updates.isRunning = data.isRunning;
+    if (typeof data.speedMultiplier === 'number') updates.speedMultiplier = data.speedMultiplier;
+    if (typeof data.commHealth === 'number') updates.commHealth = data.commHealth;
+    if (typeof data.infoIntegrity === 'number') updates.infoIntegrity = data.infoIntegrity;
+    if (data.overallDegradationState) updates.overallDegradationState = data.overallDegradationState;
+    if (data.activeDecisionWindow !== undefined) updates.activeDecisionWindow = data.activeDecisionWindow;
+    if (data.entities && Object.keys(data.entities).length > 0) updates.entities = data.entities;
+    if (data.channels && Object.keys(data.channels).length > 0) updates.channels = data.channels;
+    if (data.informationItems && data.informationItems.length > 0) updates.informationItems = data.informationItems;
+    if (data.eventLog && data.eventLog.length > 0) updates.eventLog = data.eventLog;
+
+    set(updates as any);
+
+    // 3. If a decision was submitted remotely, submit locally if activeDecisionWindow is still open
+    if (data.lastDecisionMade && current.activeDecisionWindow) {
+      const { action, rationale } = data.lastDecisionMade;
+      if (action && rationale) {
+        current.submitDecision(action, rationale);
+      }
+    }
   },
 }));

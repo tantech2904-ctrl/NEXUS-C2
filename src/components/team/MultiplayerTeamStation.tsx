@@ -6,8 +6,9 @@ import { useSimulationStore } from '@/stores/simulationStore';
 import { TeamRole, OperationalDomain, TeamMessage } from '@/types/multiplayer';
 import { DecisionAction } from '@/types/decision';
 import { tacticalAudio } from '@/lib/audio';
-import { formatTime } from '@/lib/utils';
+import { formatTime, formatPercent } from '@/lib/utils';
 import { LanBriefingModal } from './LanBriefingModal';
+import { TacticalMap } from '@/components/map/TacticalMap';
 import {
   Users,
   Shield,
@@ -26,6 +27,12 @@ import {
   Wifi,
   QrCode,
   Share2,
+  Play,
+  Pause,
+  RotateCcw,
+  Map,
+  MessageSquare,
+  Compass,
 } from 'lucide-react';
 
 export const MultiplayerTeamStation: React.FC = () => {
@@ -39,6 +46,7 @@ export const MultiplayerTeamStation: React.FC = () => {
     sendTeamMessage,
     proposeTeamAction,
     voteProposal,
+    commitLanDecision,
     syncTickBots,
     connectedPeers,
     isLanConnected,
@@ -46,10 +54,26 @@ export const MultiplayerTeamStation: React.FC = () => {
     startLanSync,
     stopLanSync,
     peerId,
+    isHost,
   } = useMultiplayerStore();
 
-  const { tick, commHealth, activeDecisionWindow, submitDecision } = useSimulationStore();
+  const {
+    scenario,
+    tick,
+    isRunning,
+    speedMultiplier,
+    commHealth,
+    infoIntegrity,
+    overallDegradationState,
+    activeDecisionWindow,
+    startSimulation,
+    pauseSimulation,
+    resetSimulation,
+    advanceTick,
+    submitDecision,
+  } = useSimulationStore();
 
+  const [stationView, setStationView] = useState<'SPLIT' | 'COMMS' | 'MAP'>('SPLIT');
   const [inputMessage, setInputMessage] = useState('');
   const [priority, setPriority] = useState<'ROUTINE' | 'PRIORITY' | 'FLASH'>('ROUTINE');
   const [selectedDomainFilter, setSelectedDomainFilter] = useState<'ALL' | OperationalDomain>('ALL');
@@ -60,7 +84,17 @@ export const MultiplayerTeamStation: React.FC = () => {
 
   const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-  // Sync autonomous synthetic bot team members on simulation ticks
+  // Host Master Simulation Tick Loop (runs the exercise clock on host machine)
+  useEffect(() => {
+    if (!isHost || !isRunning) return;
+    const intervalMs = 100;
+    const timer = setInterval(() => {
+      advanceTick(intervalMs * speedMultiplier);
+    }, intervalMs);
+    return () => clearInterval(timer);
+  }, [isHost, isRunning, speedMultiplier, advanceTick]);
+
+  // Sync autonomous synthetic bot team members on simulation ticks (if in solo mode)
   useEffect(() => {
     syncTickBots(tick, commHealth);
   }, [tick, commHealth, syncTickBots]);
@@ -104,10 +138,11 @@ export const MultiplayerTeamStation: React.FC = () => {
   const handleCommitConsensus = () => {
     if (!activeProposal || activeProposal.consensusPercentage < 75) return;
     tacticalAudio.playDecisionCommit();
-    // Also submit to simulation store if a decision window is active
-    if (activeDecisionWindow) {
-      submitDecision(activeProposal.action, `[TEAM CONSENSUS ${activeProposal.consensusPercentage}%] ${activeProposal.rationale}`);
-    }
+    // Commit via LAN so BOTH players receive and execute the decision
+    commitLanDecision(
+      activeProposal.action,
+      `[TEAM CONSENSUS ${activeProposal.consensusPercentage}%] ${activeProposal.rationale}`
+    );
   };
 
   const roleConfig: Record<TeamRole, { label: string; icon: React.ElementType; color: string; badge: string }> = {
@@ -233,30 +268,177 @@ export const MultiplayerTeamStation: React.FC = () => {
         })}
       </div>
 
-      {/* Main Grid: Left Net Stream (65%), Right Team Consensus Panel (35%) */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
-        {/* Left Column: Radio Traffic Net */}
-        <div className="lg:col-span-8 flex flex-col border-b lg:border-b-0 lg:border-r border-[#2a2d30] overflow-hidden">
-          {/* Subheader: Domain Filter Pills */}
-          <div className="px-3 py-1.5 bg-[#141618] border-b border-[#2a2d30] flex items-center justify-between text-[10px]">
-            <div className="flex items-center gap-1">
-              <span className="text-[#8a9099] mr-1">FILTER DOMAIN:</span>
-              {(['ALL', 'LAND', 'AIR', 'CYBER', 'JOINT_HQ'] as const).map((dom) => (
-                <button
-                  key={dom}
-                  onClick={() => setSelectedDomainFilter(dom)}
-                  className={`px-2 py-0.5 rounded transition-colors ${
-                    selectedDomainFilter === dom
-                      ? 'bg-[#4fc3d0] text-black font-bold'
-                      : 'bg-[#1c1f21] text-[#8a9099] hover:text-[#e8eaec]'
-                  }`}
-                >
-                  {dom}
-                </button>
-              ))}
+      {/* Synchronized Master Exercise Bar */}
+      <div className="bg-[#141618] border-b border-[#2a2d30] px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+        {/* Left: Play/Pause Controls & Simulation Clock */}
+        <div className="flex items-center gap-2.5">
+          {isHost ? (
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => {
+                  tacticalAudio.playClick();
+                  if (isRunning) pauseSimulation();
+                  else startSimulation();
+                }}
+                className={`flex items-center gap-1 px-2.5 py-1 rounded font-bold transition-all shadow-sm ${
+                  isRunning
+                    ? 'bg-amber-500 hover:bg-amber-400 text-black'
+                    : 'bg-emerald-600 hover:bg-emerald-500 text-black'
+                }`}
+              >
+                {isRunning ? <Pause className="w-3.5 h-3.5 fill-current" /> : <Play className="w-3.5 h-3.5 fill-current" />}
+                <span>{isRunning ? 'PAUSE DRILL' : 'START DRILL'}</span>
+              </button>
+              <button
+                onClick={() => {
+                  tacticalAudio.playClick();
+                  resetSimulation();
+                }}
+                className="p-1 rounded bg-[#1c1f21] hover:bg-[#2a2d30] border border-[#2a2d30] text-[#8a9099] hover:text-[#e8eaec]"
+                title="Reset Simulation Clock"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+              </button>
             </div>
-            <span className="text-[#8a9099]">NET: <strong className="text-[#e8eaec]">{myMember.assignedNet}</strong></span>
+          ) : (
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded bg-[#0d0f10] border border-[#2a2d30]">
+              <span className={`w-2 h-2 rounded-full ${isRunning ? 'bg-emerald-400 animate-pulse' : 'bg-amber-400'}`} />
+              <span className="font-bold text-[10px] text-slate-300">
+                {isRunning ? 'DRILL ACTIVE [HOST SYNCHRONIZED]' : 'STANDBY [WAITING FOR TOC HOST]'}
+              </span>
+            </div>
+          )}
+
+          {/* Clock Display */}
+          <div className="flex items-center gap-1 bg-[#0d0f10] px-2 py-1 rounded border border-[#2a2d30]">
+            <Clock className="w-3 h-3 text-cyan-400" />
+            <span className="text-slate-400 text-[10px]">T:</span>
+            <span className="font-bold text-cyan-300 text-xs tracking-wider">{formatTime(tick)}</span>
           </div>
+
+          {/* Telemetry Metrics */}
+          <div className="hidden sm:flex items-center gap-2 text-[10px]">
+            <span className="bg-[#0d0f10] px-2 py-0.5 rounded border border-[#2a2d30] text-slate-400">
+              SCN: <strong className="text-white">{scenario?.id || 'SCN-06'}</strong>
+            </span>
+            <span className="bg-[#0d0f10] px-2 py-0.5 rounded border border-[#2a2d30] text-slate-400">
+              COMMS:{' '}
+              <strong className={commHealth > 0.7 ? 'text-emerald-400' : commHealth > 0.4 ? 'text-amber-400' : 'text-red-400'}>
+                {formatPercent(commHealth)}
+              </strong>
+            </span>
+            <span className="bg-[#0d0f10] px-2 py-0.5 rounded border border-[#2a2d30] text-slate-400">
+              ICE:{' '}
+              <strong className={infoIntegrity > 0.7 ? 'text-emerald-400' : 'text-amber-400'}>
+                {formatPercent(infoIntegrity)}
+              </strong>
+            </span>
+            <span className="px-1.5 py-0.5 rounded font-bold text-[9px] bg-red-950/40 border border-red-500/30 text-red-300">
+              {overallDegradationState}
+            </span>
+          </div>
+        </div>
+
+        {/* Right: Station Layout Mode Switcher */}
+        <div className="flex items-center gap-1 bg-[#0d0f10] p-0.5 rounded border border-[#2a2d30]">
+          <button
+            onClick={() => setStationView('SPLIT')}
+            className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 transition ${
+              stationView === 'SPLIT'
+                ? 'bg-cyan-600 text-slate-950'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Compass className="w-3 h-3" />
+            <span>MAP + NET</span>
+          </button>
+          <button
+            onClick={() => setStationView('COMMS')}
+            className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 transition ${
+              stationView === 'COMMS'
+                ? 'bg-cyan-600 text-slate-950'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <MessageSquare className="w-3 h-3" />
+            <span>COMMS ONLY</span>
+          </button>
+          <button
+            onClick={() => setStationView('MAP')}
+            className={`px-2 py-0.5 rounded text-[10px] font-bold flex items-center gap-1 transition ${
+              stationView === 'MAP'
+                ? 'bg-cyan-600 text-slate-950'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Map className="w-3 h-3" />
+            <span>FULL MAP</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Active Tactical Decision Window Flash Alert Banner */}
+      {activeDecisionWindow && (
+        <div className="bg-red-950/40 border-b border-red-500/60 px-4 py-2 flex flex-wrap items-center justify-between gap-2 animate-pulse">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 text-red-400 shrink-0" />
+            <div>
+              <span className="font-bold text-white text-xs">
+                EXERCISE DECISION WINDOW: [{activeDecisionWindow.urgency} URGENCY]
+              </span>
+              <span className="text-[11px] text-amber-300 ml-2 hidden md:inline">
+                {activeDecisionWindow.situation}
+              </span>
+            </div>
+          </div>
+          <button
+            onClick={() => {
+              setProposalAction(activeDecisionWindow.recommendedActions?.[0] || 'SWITCH_INFORMATION_CHANNEL');
+              setIsProposeModalOpen(true);
+            }}
+            className="px-3 py-1 rounded bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-md transition"
+          >
+            + PROPOSE JOINT RESPONSE
+          </button>
+        </div>
+      )}
+
+      {/* Main Grid: Dependent on stationView */}
+      {stationView === 'MAP' ? (
+        <div className="flex-1 relative bg-black overflow-hidden">
+          <TacticalMap />
+        </div>
+      ) : (
+        <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 overflow-hidden">
+          {/* Left Column: Tactical Map (in SPLIT) + Radio Traffic Net */}
+          <div className="lg:col-span-8 flex flex-col border-b lg:border-b-0 lg:border-r border-[#2a2d30] overflow-hidden">
+            {/* Embedded Live Tactical Map in SPLIT mode */}
+            {stationView === 'SPLIT' && (
+              <div className="h-[270px] border-b border-[#2a2d30] relative overflow-hidden bg-black shrink-0">
+                <TacticalMap />
+              </div>
+            )}
+
+            {/* Subheader: Domain Filter Pills */}
+            <div className="px-3 py-1.5 bg-[#141618] border-b border-[#2a2d30] flex items-center justify-between text-[10px]">
+              <div className="flex items-center gap-1">
+                <span className="text-[#8a9099] mr-1">FILTER DOMAIN:</span>
+                {(['ALL', 'LAND', 'AIR', 'CYBER', 'JOINT_HQ'] as const).map((dom) => (
+                  <button
+                    key={dom}
+                    onClick={() => setSelectedDomainFilter(dom)}
+                    className={`px-2 py-0.5 rounded transition-colors ${
+                      selectedDomainFilter === dom
+                        ? 'bg-[#4fc3d0] text-black font-bold'
+                        : 'bg-[#1c1f21] text-[#8a9099] hover:text-[#e8eaec]'
+                    }`}
+                  >
+                    {dom}
+                  </button>
+                ))}
+              </div>
+              <span className="text-[#8a9099]">NET: <strong className="text-[#e8eaec]">{myMember.assignedNet}</strong></span>
+            </div>
 
           {/* Messages Stream */}
           <div className="flex-1 overflow-y-auto p-3 space-y-2.5 bg-[#0d0f10]">
@@ -492,6 +674,7 @@ export const MultiplayerTeamStation: React.FC = () => {
           </div>
         </div>
       </div>
+      )}
 
       {/* Propose Action Modal */}
       {isProposeModalOpen && (

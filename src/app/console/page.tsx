@@ -12,6 +12,7 @@ import { ReplayModal } from '@/components/replay/ReplayModal';
 import { JudgeTourModal } from '@/components/guide/JudgeTourModal';
 import { useSimulationStore } from '@/stores/simulationStore';
 import { useSessionStore } from '@/stores/sessionStore';
+import { useMultiplayerStore } from '@/stores/multiplayerStore';
 import { validateScenario } from '@/lib/simulation/scenario';
 import { tacticalAudio } from '@/lib/audio';
 import { VirtualCommanderCursor } from '@/components/guide/VirtualCommanderCursor';
@@ -111,9 +112,21 @@ export default function ConsolePage() {
     }
   }, []);
 
-  // Simulation Tick Loop
+  const { isLanClientSyncing } = useSimulationStore();
+  const { startLanSync, stopLanSync, isLanConnected, myRole, members } = useMultiplayerStore();
+
+  // Start LAN synchronization on console
+  useEffect(() => {
+    startLanSync();
+    return () => {
+      stopLanSync();
+    };
+  }, [startLanSync, stopLanSync]);
+
+  // Simulation Tick Loop (Runs locally if standalone or host; locks to host clock if LAN client)
   useEffect(() => {
     if (!isRunning) return;
+    if (isLanClientSyncing) return; // Client peer stays locked to host simulation clock!
 
     const intervalMs = 100;
     const timer = setInterval(() => {
@@ -121,7 +134,7 @@ export default function ConsolePage() {
     }, intervalMs);
 
     return () => clearInterval(timer);
-  }, [isRunning, speedMultiplier, advanceTick]);
+  }, [isRunning, speedMultiplier, advanceTick, isLanClientSyncing]);
 
   // Sound triggers on events
   useEffect(() => {

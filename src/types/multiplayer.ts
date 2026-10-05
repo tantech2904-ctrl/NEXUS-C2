@@ -68,9 +68,16 @@ export interface LanDrillSyncPayload {
   scenarioId: string;
   tick: number;
   isRunning: boolean;
+  speedMultiplier?: number;
   commHealth: number;
   infoIntegrity: number;
   overallDegradationState: string;
+  activeDecisionWindow?: any;
+  lastDecisionMade?: { action: DecisionAction; rationale: string; tick: number; submittedBy?: string } | null;
+  entities?: any;
+  channels?: any;
+  informationItems?: any[];
+  eventLog?: any[];
   peers: LanPeer[];
   messages: TeamMessage[];
   activeProposal: TeamProposal | null;

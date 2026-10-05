@@ -12,10 +12,12 @@ import {
   LanDrillSyncPayload,
 } from '@/types/multiplayer';
 import { DecisionAction } from '@/types/decision';
+import { useSimulationStore } from './simulationStore';
 
 export interface MultiplayerStore {
   myRole: TeamRole;
   peerId: string;
+  isHost: boolean;
   members: Record<TeamRole, TeamMember>;
   messages: TeamMessage[];
   activeProposal: TeamProposal | null;
@@ -31,6 +33,7 @@ export interface MultiplayerStore {
   sendTeamMessage: (content: string, priority?: 'ROUTINE' | 'PRIORITY' | 'FLASH', currentTick?: number) => Promise<void>;
   proposeTeamAction: (action: DecisionAction, rationale: string, currentTick: number) => Promise<void>;
   voteProposal: (proposalId: string, role: TeamRole, vote: 'CONCUR' | 'OBJECT') => Promise<void>;
+  commitLanDecision: (action: DecisionAction, rationale: string) => Promise<void>;
   updateMemberStatus: (role: TeamRole, status: TeamMember['status']) => void;
   syncTickBots: (tick: number, commHealth: number) => void;
   resetTeamSession: () => void;
@@ -190,6 +193,31 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
       const state = get();
       const myMember = state.members[state.myRole];
 
+      const isHost =
+        (typeof window !== 'undefined' &&
+          (window.location.hostname === 'localhost' ||
+           window.location.hostname === '127.0.0.1')) ||
+        state.myRole === 'TOC_LEAD_COMMANDER';
+
+      let simState: any = undefined;
+      if (isHost) {
+        const sim = useSimulationStore.getState();
+        simState = {
+          tick: sim.tick,
+          isRunning: sim.isRunning,
+          speedMultiplier: sim.speedMultiplier,
+          commHealth: sim.commHealth,
+          infoIntegrity: sim.infoIntegrity,
+          overallDegradationState: sim.overallDegradationState,
+          scenarioId: sim.scenario?.id || 'SCN-06',
+          activeDecisionWindow: sim.activeDecisionWindow,
+          entities: sim.entities,
+          channels: sim.channels,
+          informationItems: sim.informationItems,
+          eventLog: sim.eventLog,
+        };
+      }
+
       const res = await fetch('/api/multiplayer/sync', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -200,13 +228,19 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
           role: state.myRole,
           domain: myMember?.domain || 'JOINT_HQ',
           payload: {
-            isHost: state.myRole === 'TOC_LEAD_COMMANDER',
+            isHost,
+            simState,
           },
         }),
       });
 
       if (!res.ok) return;
       const data: LanDrillSyncPayload = await res.json();
+
+      // If this machine is a client peer (not host), synchronize local simulation store to the host!
+      if (!isHost) {
+        useSimulationStore.getState().applyRemoteSync(data);
+      }
 
       set((curr) => {
         // Merge messages: keep all existing, add any new from remote
@@ -244,6 +278,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
           activeProposal: data.activeProposal || curr.activeProposal,
           members: nextMembers,
           isLanConnected: true,
+          isHost,
           isSyntheticBotsActive: shouldDisableBots ? false : curr.isSyntheticBotsActive,
         };
       });
@@ -256,6 +291,7 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
   return {
     myRole: 'TOC_LEAD_COMMANDER',
     peerId: initialPeerId,
+    isHost: typeof window !== 'undefined' ? (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') : true,
     members: DEFAULT_MEMBERS,
     messages: INITIAL_MESSAGES,
     activeProposal: null,
@@ -462,6 +498,32 @@ export const useMultiplayerStore = create<MultiplayerStore>((set, get) => {
         });
       } catch {
         // Offline fallback
+      }
+    },
+
+    commitLanDecision: async (action: DecisionAction, rationale: string) => {
+      const state = get();
+      // Apply locally in simulation store
+      useSimulationStore.getState().submitDecision(action, rationale);
+
+      try {
+        await fetch('/api/multiplayer/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: 'SUBMIT_DECISION',
+            peerId: state.peerId,
+            callsign: state.members[state.myRole]?.callsign,
+            role: state.myRole,
+            domain: state.members[state.myRole]?.domain,
+            payload: {
+              action,
+              rationale,
+            },
+          }),
+        });
+      } catch (err) {
+        console.warn('LAN decision commit error:', err);
       }
     },
 

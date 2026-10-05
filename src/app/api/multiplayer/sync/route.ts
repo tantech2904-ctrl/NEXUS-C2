@@ -17,9 +17,16 @@ interface GlobalLanState {
   scenarioId: string;
   tick: number;
   isRunning: boolean;
+  speedMultiplier: number;
   commHealth: number;
   infoIntegrity: number;
   overallDegradationState: string;
+  activeDecisionWindow: any;
+  lastDecisionMade: any;
+  entities?: any;
+  channels?: any;
+  informationItems?: any[];
+  eventLog?: any[];
   peers: Map<string, LanPeer>;
   messages: TeamMessage[];
   activeProposal: TeamProposal | null;
@@ -120,9 +127,12 @@ function getLanState(): GlobalLanState {
       scenarioId: 'SCN-06',
       tick: 0,
       isRunning: false,
+      speedMultiplier: 1,
       commHealth: 0.95,
       infoIntegrity: 0.92,
       overallDegradationState: 'NORMAL',
+      activeDecisionWindow: null,
+      lastDecisionMade: null,
       peers: new Map<string, LanPeer>(),
       messages: [...INITIAL_MESSAGES],
       activeProposal: null,
@@ -160,9 +170,16 @@ export async function GET() {
     scenarioId: state.scenarioId,
     tick: state.tick,
     isRunning: state.isRunning,
+    speedMultiplier: state.speedMultiplier,
     commHealth: state.commHealth,
     infoIntegrity: state.infoIntegrity,
     overallDegradationState: state.overallDegradationState,
+    activeDecisionWindow: state.activeDecisionWindow,
+    lastDecisionMade: state.lastDecisionMade,
+    entities: state.entities,
+    channels: state.channels,
+    informationItems: state.informationItems,
+    eventLog: state.eventLog,
     peers: Array.from(state.peers.values()),
     messages: state.messages,
     activeProposal: state.activeProposal,
@@ -210,6 +227,23 @@ export async function POST(req: NextRequest) {
         if (state.members[role as TeamRole]) {
           state.members[role as TeamRole].claimedByPeerId = peerId;
           state.members[role as TeamRole].claimedByIp = clientIp;
+        }
+
+        // If host provided live simulation snapshot, sync server state
+        if (payload?.simState) {
+          const s = payload.simState;
+          if (typeof s.tick === 'number') state.tick = s.tick;
+          if (typeof s.isRunning === 'boolean') state.isRunning = s.isRunning;
+          if (typeof s.speedMultiplier === 'number') state.speedMultiplier = s.speedMultiplier;
+          if (typeof s.commHealth === 'number') state.commHealth = s.commHealth;
+          if (typeof s.infoIntegrity === 'number') state.infoIntegrity = s.infoIntegrity;
+          if (s.overallDegradationState) state.overallDegradationState = s.overallDegradationState;
+          if (s.scenarioId) state.scenarioId = s.scenarioId;
+          if (s.activeDecisionWindow !== undefined) state.activeDecisionWindow = s.activeDecisionWindow;
+          if (s.entities) state.entities = s.entities;
+          if (s.channels) state.channels = s.channels;
+          if (s.informationItems) state.informationItems = s.informationItems;
+          if (s.eventLog) state.eventLog = s.eventLog;
         }
       }
       break;
@@ -308,10 +342,16 @@ export async function POST(req: NextRequest) {
       if (payload) {
         if (typeof payload.tick === 'number') state.tick = payload.tick;
         if (typeof payload.isRunning === 'boolean') state.isRunning = payload.isRunning;
+        if (typeof payload.speedMultiplier === 'number') state.speedMultiplier = payload.speedMultiplier;
         if (typeof payload.commHealth === 'number') state.commHealth = payload.commHealth;
         if (typeof payload.infoIntegrity === 'number') state.infoIntegrity = payload.infoIntegrity;
         if (payload.overallDegradationState) state.overallDegradationState = payload.overallDegradationState;
         if (payload.scenarioId) state.scenarioId = payload.scenarioId;
+        if (payload.activeDecisionWindow !== undefined) state.activeDecisionWindow = payload.activeDecisionWindow;
+        if (payload.entities) state.entities = payload.entities;
+        if (payload.channels) state.channels = payload.channels;
+        if (payload.informationItems) state.informationItems = payload.informationItems;
+        if (payload.eventLog) state.eventLog = payload.eventLog;
         if (payload.membersStatus) {
           for (const [r, s] of Object.entries(payload.membersStatus)) {
             if (state.members[r as TeamRole]) {
@@ -323,11 +363,39 @@ export async function POST(req: NextRequest) {
       break;
     }
 
+    case 'SUBMIT_DECISION': {
+      if (payload?.action && payload?.rationale) {
+        state.lastDecisionMade = {
+          action: payload.action,
+          rationale: payload.rationale,
+          tick: state.tick,
+          submittedBy: callsign || role || 'OPERATOR',
+          timestamp: Date.now(),
+        };
+        state.activeDecisionWindow = null;
+
+        const announcementMsg: TeamMessage = {
+          id: `dec-${Date.now()}`,
+          senderRole: (role as TeamRole) || 'TOC_LEAD_COMMANDER',
+          senderName: callsign || 'JOINT COMMAND',
+          timestampTick: state.tick,
+          content: `COMMITTED TACTICAL ACTION [${payload.action}]: "${payload.rationale}"`,
+          priority: 'FLASH',
+          domain: 'JOINT_HQ',
+          status: 'DELIVERED',
+          peerId,
+        };
+        state.messages.push(announcementMsg);
+      }
+      break;
+    }
+
     case 'RESET_DRILL': {
       state.drillId = `DRILL-${Date.now().toString(36).toUpperCase()}`;
       state.tick = 0;
       state.messages = [...INITIAL_MESSAGES];
       state.activeProposal = null;
+      state.lastDecisionMade = null;
       state.members = JSON.parse(JSON.stringify(DEFAULT_MEMBERS));
       break;
     }
@@ -343,9 +411,16 @@ export async function POST(req: NextRequest) {
     scenarioId: state.scenarioId,
     tick: state.tick,
     isRunning: state.isRunning,
+    speedMultiplier: state.speedMultiplier,
     commHealth: state.commHealth,
     infoIntegrity: state.infoIntegrity,
     overallDegradationState: state.overallDegradationState,
+    activeDecisionWindow: state.activeDecisionWindow,
+    lastDecisionMade: state.lastDecisionMade,
+    entities: state.entities,
+    channels: state.channels,
+    informationItems: state.informationItems,
+    eventLog: state.eventLog,
     peers: Array.from(state.peers.values()),
     messages: state.messages,
     activeProposal: state.activeProposal,
