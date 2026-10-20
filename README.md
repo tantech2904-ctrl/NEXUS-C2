@@ -51,7 +51,8 @@ To make it completely effortless for judges and evaluators across any operating 
 npm install
 
 # 2. Start development server
-npm run dev
+npm run build
+npm start
 ```
 Open **[http://localhost:3000](http://localhost:3000/console)** in your browser.  
 *(Press `F11` or click `[ FULLSCREEN ]` in the top right header for optimal full-screen command center view).*
